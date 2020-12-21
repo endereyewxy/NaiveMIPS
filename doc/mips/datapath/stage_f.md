@@ -1,0 +1,12 @@
+| 信号         | 方向 | 位宽     |
+| ------------ | ---- | -------- |
+| clk          | 输入 | 1        |
+| rst          | 输入 | 1        |
+| except_ena   | 输入 | 1        |
+| except_pc    | 输入 | `W_ADDR` |
+| pc_branch_d  | 输入 | `W_ADDR` |
+| pc_src_d     | 输入 | 2        |
+| addr_shift_d | 输入 | `W_DATA` |
+| stall_f      | 输入 | 1        |
+| instr_a      | 输出 | `W_DATA` |
+| pc_plus_f    | 输出 | `W_ADDR` |
