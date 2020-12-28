@@ -93,8 +93,8 @@
 | 模块名称 | 源文件路径                | 文档路径                   | 主要功能     | 负责人 |
 | -------- | ------------------------- | -------------------------- | ------------ | ------ |
 | id       | src/mips/datapath/id/id.v | src/mips/datapath/id/id.md | 封装译码阶段 | QXF |
-| branch   | src/mips/datapath/id/branch.v  | doc/mips/datapath/id/branch.md  | 处理分支指令 | QXF |
-| decode   | src/mips/datapath/id/decode.v  | doc/mips/datapath/id/decode.md  | 实现指令译码     | QXF |
+| branch   | src/mips/datapath/id/branch.v  | doc/mips/datapath/id/branch.md  | 处理分支指令 | WXY |
+| decode   | src/mips/datapath/id/decode.v  | doc/mips/datapath/id/decode.md  | 实现指令译码     | WXY |
 | brcsrc | src/mips/datapath/id/brcsrc.v | doc/mips/datapath/id/brcsrc.md | 准备分支指令处理的操作数 |QXF|
 
 #### EX阶段
@@ -103,7 +103,7 @@
 | -------- | ---------------------------------- | -------------------------- | ------------ | ------ |
 | ex       | src/mips/datapath/ex/ex.v          | doc/mips/datapath/ex/ex.md | 封装执行阶段 | WXY |
 | mulalu  | src/mips/datapath/ex/mulalu.v | doc/mips/datapath/ex/mulalu.md | 实现多周期ALU | WXY |
-| sglalu | src/mips/datapath/ex/sglalu.v | doc/mips/datapath/ex/sglalu.md | 实现单周期ALU | ZHY |
+| sglalu | src/mips/datapath/ex/sglalu.v | doc/mips/datapath/ex/sglalu.md | 实现单周期ALU | ZHY/QXF |
 | alusrc | src/mips/datapath/ex/alusrc.v | doc/mips/datapath/ex/alusrc.md | 准备ALU的操作数 | ZHY |
 
 #### MM阶段
