@@ -16,9 +16,9 @@
 | except      | MM.A.2 | 输出 |   1    | 异常处理入口地址的有效性            |
 | except_addr | MM.A.2 | 输出 | W_ADDR | 异常处理入口地址                    |
 | flush       | MM.C.1 | 输出 |   1    | 流水线刷新请求                      |
-| cp0         | MM.D.2 | 输出 |   1    | CP0寄存器写使能                     |
+| cp0_en      | MM.D.2 | 输出 |   1    | CP0寄存器写使能                     |
+| cp0_bd      | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Cause.BD       |
 | cp0_exl     | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Status.EXL     |
 | cp0_exc     | MM.D.2 | 输出 | W_EXCC | CP0寄存器写数据：CP0.Cause.ExcCode  |
 | cp0_epc     | MM.D.2 | 输出 | W_ADDR | CP0寄存器写数据：CP0.EPC            |
 | cp0_bva     | MM.D.2 | 输出 | W_ADDR | CP0寄存器写数据：CP0.BadVAddr       |
-| cp0_bd      | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Cause.BD       |
