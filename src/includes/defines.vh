@@ -1,11 +1,11 @@
-`define W_ADDR 32
-`define W_DATA 32
-`define W_REGF 5
-`define W_TYPE 2
-`define W_OPER 5
-`define W_FUNC 4
-`define W_EXCC 5
-`define W_INTV 8
+`define W_ADDR [31:0]
+`define W_DATA [31:0]
+`define W_REGF [4 :0]
+`define W_TYPE [1 :0]
+`define W_OPER [4 :0]
+`define W_FUNC [3 :0]
+`define W_EXCC [4 :0]
+`define W_INTV [7 :0]
 
 `define TYPE_R 2'b00
 `define TYPE_I 2'b01
