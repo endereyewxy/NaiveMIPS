@@ -12,97 +12,43 @@
 
 ![](datapath-2.svg)
 
-其中蓝色线代表地址，绿色线代表数据，紫色线代表指令，黄色线代表控制信号，红色线代表异常信号。各线的代号格式为*阶段.类型.标号*，如IF.A.1表示IF阶段第一条地址线，MM.E.4表示MM阶段第四条异常信号线。
+- 地址线：用蓝色表示，包含指令或数据的地址，可能包含该地址受否有效；
+- 指令线：用紫色表示，包含解码之前或解码之后的指令；
+- 数据线：用绿色表示，包含读写的数据，可能包含与之对应的使能和寄存器信息；
+- 异常线：用红色表示，包含异常信息；
+- 控制线：用黄色表示，包含停顿、刷新等流水线控制信号。
 
-| 代号   | 含义                                                     |
-| ------ | -------------------------------------------------------- |
-| IF.A.1 | （可能存在的）异常处理入口地址                           |
-| IF.A.2 | （可能存在的）分支跳转目标地址                           |
-| IF.A.3 | 指令地址                                                 |
-| IF.C.1 | PC寄存器控制信号                                         |
-| IF.C.2 | 指令总线发出的停顿请求                                   |
-| ID.A.1 | 指令地址                                                 |
-| ID.D.1 | 来自之后阶段的前推数据                                   |
-| ID.D.2 | （可能的存在的）读寄存器数据                             |
-| ID.D.3 | 运算器操作数                                             |
-| ID.D.4 | 返回地址（作为操作数存在）                               |
-| ID.I.1 | 当前指令                                                 |
-| ID.C.1 | 指令解码得到的控制信号                                   |
-| ID.E.1 | 指令总线的AdEL                                           |
-| EX.A.1 | 运算器生成的，访存的地址                                 |
-| EX.D.1 | 运算器操作数                                             |
-| EX.D.2 | 运算器生成的，访存或写回寄存器的数据                     |
-| EX.D.3 | 运算器与CP0寄存器堆的交互                                |
-| EX.C.1 | 指令解码得到的控制信号                                   |
-| EX.C.2 | 多周期运算器的停顿信号                                   |
-| EX.E.1 | 指令总线的AdEL                                           |
-| EX.E.2 | 内陷指令、未实现指令、溢出错误、来自CP0的中断反馈        |
-| MM.A.1 | 访存的地址                                               |
-| MM.A.2 | 指令地址                                                 |
-| MM.A.3 | 异常处理报告控制器，异常处理程序入口的地址               |
-| MM.D.1 | 访存或写回寄存器的数据                                   |
-| MM.D.2 | 异常处理写入CP0的数据                                    |
-| MM.C.1 | 指令解码得到的控制信号                                   |
-| MM.C.2 | 数据总线发出的停顿请求                                   |
-| MM.E.1 | 指令总线的AdEL，以及寄存器提供的当前中断（考虑屏蔽之后） |
-| MM.E.2 | 内陷指令、未实现指令和溢出错误                           |
-| MM.E.3 | 数据总线的AdEL，AdES                                     |
-| WB.D.1 | 写回寄存器的数据的可能来源之一（来自运算器）             |
-| WB.D.2 | 写回寄存器的数据的可能来源之二（来自访存结果）           |
-| WB.D.3 | 写回寄存器的数据                                         |
-| WB.C.1 | 指令解码得到的控制信号                                   |
-
-### 通用路径
-
-1. IF：pc根据使能信号（IF.C.1）、错误处理入口地址（IF.A.1）、分支指令目标地址（IF.A.2）、当前pc地址（IF.A.3），计算下一条指令的地址（IF.A.3），送至指令总线；
-   - 回路IF.A.3实际上在pc内部。
-2. decode根据指令总线返回的指令（ID.I.1），计算解码相关信息（ID.C.1）。
-
-### 简单运算指令（包括逻辑运算指令、移位指令、数据移动指令、算数运算指令）
-
-1. ID：exesrc合并前推数据（ID.D.1）、通用寄存器堆（ID.D.2）、立即数（ID.C.1），产生运算器操作数（ID.D.3）；
-2. EX：execute和complex根据操作数（EX.D.1）、运算码（EX.C.1），计算结果（EX.D.2），可能产生溢出（EX.E.2），可能导致流水线停顿（EX.C.2）；
-3. MM：不做处理；
-4. WB：wb根据计算结果（WB.D.1）、要写的寄存器号（WB.C.1），写回寄存器（WB.D.3）。
-
-### 分支跳转指令
-
-1. ID：exesrc合并前推数据（ID.D.1）、通用寄存器堆（ID.D.2）、立即数（ID.C.1），产生条件比较操作数（ID.D.3）；
-2. ID：branch根据指令（ID.I.1）、条件比较操作数（ID.D.3），计算条件跳转目标地址（IF.A.2），计算返回地址（ID.D.4）；
-   - 由于延迟槽的存在，不需要停顿。
-3. ID：exesrc合并返回地址（ID.D.4）得到运算器操作数（ID.D.3）；
-   - 只有beq和bne需要两个条件比较操作数，但这两条指令不要求保存返回地址，因此ID.D.3中的两条数据线总是够用的。
-4. EX：不做处理；
-5. MM：不做处理；
-6. WB：wb根据返回地址（WB.D.1）、要写的寄存器号（WB.C.1），写回寄存器（WB.D.3）；
-
-### 访存指令
-
-1. ID：exesrc合并前推数据（ID.D.1）、通用寄存器堆（ID.D.2）、立即数（ID.C.1），产生运算器操作数（ID.D.3）；
-2. EX：execute根据操作数（EX.D.1）、运算码（EX.C.1），计算访存地址（EX.A.1），可能计算访存数据（EX.D.2）；
-3. MM：将访存地址（MM.A.1）、访存数据（MM.D.1）、访存使能信号（MM.C.1）送至数据总线；
-4. WB：wb根据数据总线返回的数据（WB.D.2）、要写的寄存器号（WB.C.1），写回寄存器（WB.D.3）。
-
-### 内陷指令（包括eret）
-
-1. ID：无额外处理；
-2. EX：execute根据操作码（EX.C.1），生成错误信号（EX.E.2）；
-3. MM：参见错误处理一节；
-4. WB：不做处理。
-
-### 特权指令（不包括eret）
-
-1. ID：exesrc合并前推数据（ID.D.1）、通用寄存器堆（ID.D.2），产生运算器操作数（ID.D.3）；
-2. EX：execute根据操作数（EX.D.1）、运算码（EX.C.1），读写CP0寄存器（EX.D.3）；
-3. MM：不做处理；
-4. WB：不做处理。
-
-### 错误处理
-
-1. MM：except汇总所有错误信息（MM.E.1、MM.E.2、MM.E.3），根据指令地址（MM.A.2），生成错误处理入口地址（MM.A.3）并报告处理器，设置CP0寄存器（MM.D.2）；
-   - 对于eret指令，需要获得CP0.EPC寄存器（MM.D.2），作为错误处理入口地址（MM.A.3）。
-2. 处理器将错误处理入口地址（MM.A.3）反馈给pc（IF.A.1），并刷新流水线。
-   - 错误指令之前指令此时已到达WB阶段并提交，因此可以安全地刷新整条流水线。
+| 代号   | 含义                                     |
+| ------ | ---------------------------------------- |
+| IF.A.1 | 将要执行的指令地址                       |
+| IF.C.1 | 控制PC寄存器的停顿、刷新信号             |
+| IF.C.2 | 指令总线发出的停顿请求                   |
+| ID.A.1 | 分支指令目标地址，以及该地址的有效性     |
+| ID.I.1 | 解码之前的指令                           |
+| ID.I.2 | 解码之后的指令                           |
+| ID.D.1 | 指令中的立即数（扩展之后）               |
+| ID.D.2 | 用于分支判断的寄存器数据（合并前推之后） |
+| ID.D.3 | 向ID阶段前推的数据                       |
+| ID.D.4 | 寄存器数据（合并前推之前）               |
+| ID.E.1 | 指令总线产生的异常                       |
+| ID.E.2 | 译码器产生的异常                         |
+| ID.E.3 | CP0寄存器提供的中断异常                  |
+| EX.D.1 | 向EX阶段前推的数据                       |
+| EX.D.2 | ALU操作数                                |
+| EX.D.3 | ALU写CP0寄存器（特权指令mtc0）           |
+| EX.D.4 | ALU读CP0寄存器（特权指令mfc0）           |
+| EX.D.5 | ALU运算结果                              |
+| EX.E.1 | ALU产生的异常                            |
+| EX.C.1 | 多周期运算器发出的停顿请求               |
+| MM.A.1 | 访存地址                                 |
+| MM.A.2 | 异常处理入口地址，以及该地址的有效性     |
+| MM.D.1 | 访存或写回寄存器的数据                   |
+| MM.D.2 | 异常处理写入CP0的数据                    |
+| MM.E.1 | 数据总线产生的异常                       |
+| MM.C.1 | 异常处理发出的刷新请求                   |
+| MM.C.2 | 数据总线发出的停顿请求                   |
+| WB.D.1 | 访存得到的数据                           |
+| WB.D.2 | 写回寄存器的数据                         |
 
 ### 数据前推
 
@@ -122,7 +68,9 @@
 | mips             | src/mips/mips.v             | doc/mips/mips.md | 封装MIPS整体功能   |              |
 | sram_like_to_axi | src/mips/sram_like_to_axi.v |                  | 转换SRAM-Like至AXI | 实验环境提供 |
 | mmu              | src/mips/mmu.v              | doc/mips/mmu.md  | 实现地址映射       |              |
-| bus              | src/mips/bus.v              | doc/mips/bus.md  | 提供总线接口       |              |
+| bus              | src/mips/bus.v              | doc/mips/bus.md  | 实现简单总线接口   |              |
+| gpr              | src/mips/gpr.v              | doc/mips/gpr.md  | 实现通用寄存器堆   |              |
+| cp0              | src/mips/cp0.v              | doc/mips/cp0.md  | 实现CP0寄存器堆    |              |
 
 ### 缓存模块
 
@@ -134,44 +82,48 @@
 
 ### 数据通路
 
-| 模块名称 | 源文件路径                     | 文档路径                        | 主要功能         | 负责人 |
-| -------- | ------------------------------ | ------------------------------- | ---------------- | ------ |
-| datapath | src/mips/datapath/datapath.v   | doc/mips/datapath/datapath.md   | 实现数据通路     |        |
-| control  | src/mips/datapath/controller.v | doc/mips/datapath/controller.md | 控制流水线       |        |
-| gpr      | src/mips/datapath/gpr.v        | doc/mips/datapath/gpr.md        | 实现通用寄存器堆 |        |
-| cp0      | src/mips/datapath/cp0.v        | doc/mips/datapath/cp0.md        | 实现CP0寄存器堆  |        |
+| 模块名称 | 源文件路径                   | 文档路径                      | 主要功能               | 负责人 |
+| -------- | ---------------------------- | ----------------------------- | ---------------------- | ------ |
+| datapath | src/mips/datapath/datapath.v | doc/mips/datapath/datapath.md | 封装数据通路           |        |
+| control  | src/mips/datapath/control.v  | doc/mips/datapath/control.md  | 实现流水线控制器       |        |
+| forward  | src/mips/datapath/forward.v  | doc/mips/datapath/forward.md  | 实现流水线数据前推功能 |        |
 
 #### IF阶段
 
 | 模块名称 | 源文件路径                         | 文档路径 | 主要功能     | 负责人 |
 | -------- | ---------------------------------- | -------- | ------------ | ------ |
+| if | src/mips/datapath/if/if.v | doc/mips/datapath/if/if.md | 封装取值阶段 |  |
 | pc       | src/mips/datapath/if/pc.v      | doc/mips/datapath/if/pc.md      | 实现PC寄存器     |        |
 
 #### ID阶段
 
 | 模块名称 | 源文件路径                | 文档路径                   | 主要功能     | 负责人 |
 | -------- | ------------------------- | -------------------------- | ------------ | ------ |
-| id       | src/mips/datapath/id/id.v | src/mips/datapath/id/id.md | 实现译码阶段 |        |
-| branch   | src/mips/datapath/id/branch.v  | doc/mips/datapath/id/branch.md  | 实现跳转处理     |        |
+| id       | src/mips/datapath/id/id.v | src/mips/datapath/id/id.md | 封装译码阶段 |        |
+| branch   | src/mips/datapath/id/branch.v  | doc/mips/datapath/id/branch.md  | 处理分支指令 |        |
 | decode   | src/mips/datapath/id/decode.v  | doc/mips/datapath/id/decode.md  | 实现指令译码     |        |
-| exesrc | src/mips/datapath/id/exesrc.v | doc/mips/datapath/id/exesrc.md | 准备运算器的操作数 ||
+| brcsrc | src/mips/datapath/id/brcsrc.v | doc/mips/datapath/id/brcsrc.md | 准备分支指令处理的操作数 ||
 
 #### EX阶段
 
 | 模块名称 | 源文件路径                         | 文档路径                   | 主要功能     | 负责人 |
 | -------- | ---------------------------------- | -------------------------- | ------------ | ------ |
-| ex       | src/mips/datapath/ex/ex.v          | doc/mips/datapath/ex/ex.md | 实现执行阶段 |        |
-| complex  | src/mips/datapath/ex/complex.v | doc/mips/datapath/ex/complex.md | 实现多周期运算器 |        |
-| execute  | src/mips/datapath/ex/execute.v | doc/mips/datapath/ex/execute.md | 实现单周期运算器 |        |
+| ex       | src/mips/datapath/ex/ex.v          | doc/mips/datapath/ex/ex.md | 封装执行阶段 |        |
+| mulalu  | src/mips/datapath/ex/mulalu.v | doc/mips/datapath/ex/mulalu.md | 实现多周期ALU |        |
+| sglalu | src/mips/datapath/ex/sglalu.v | doc/mips/datapath/ex/sglalu.md | 实现单周期ALU |        |
+| alusrc | src/mips/datapath/ex/alusrc.v | doc/mips/datapath/ex/alusrc.md | 准备ALU的操作数 | |
 
 #### MM阶段
 
-| 模块名称 | 源文件路径                     | 文档路径                        | 主要功能         | 负责人 |
-| -------- | ------------------------------ | ------------------------------- | ---------------- | ------ |
-| except   | src/mips/datapath/mm/except.v  | doc/mips/datapath/mm/except.md  | 实现异常处理     |        |
+| 模块名称 | 源文件路径                    | 文档路径                       | 主要功能     | 负责人 |
+| -------- | ----------------------------- | ------------------------------ | ------------ | ------ |
+| mm       | src/mips/datapath/mm/mm.v     | doc/mips/datapath/mm/mm.md     | 封装访存阶段 |        |
+| except   | src/mips/datapath/mm/except.v | doc/mips/datapath/mm/except.md | 实现异常处理 |        |
+| memctl   | src/mips/datapath/mm/memctl.v | doc/mips/datapath/mm/memctl.md | 控制访存     |        |
 
 #### WB阶段
 
-| 模块名称 | 源文件路径                     | 文档路径                        | 主要功能         | 负责人 |
-| -------- | ------------------------------ | ------------------------------- | ---------------- | ------ |
-| wb       | src/mips/datapath/wb/wb.v      | doc/mips/datapath/wb/wb.md      | 实现写回阶段     |        |
+| 模块名称 | 源文件路径                    | 文档路径                       | 主要功能             | 负责人 |
+| -------- | ----------------------------- | ------------------------------ | -------------------- | ------ |
+| wb       | src/mips/datapath/wb/wb.v     | doc/mips/datapath/wb/wb.md     | 封装写回阶段         |        |
+| regsrc   | src/mips/datapath/wb/regsrc.v | doc/mips/datapath/wb/regsrc.md | 准备写回寄存器的数据 |        |
