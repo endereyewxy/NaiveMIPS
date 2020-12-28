@@ -6,8 +6,8 @@
 | dbus_adel   | MM.E.1 | 输入 |   1    | 数据总线取数据异常                  |
 | dbus_ades   | MM.E.1 | 输入 |   1    | 数据总线写数据异常                  |
 | dbus_addr   | MM.E.1 | 输入 | W_ADDR | 数据总线读写数据异常的虚地址        |
-| sy          | EX.E.1 | 输入 |   1    | 内陷指令异常：SYSCALL               |
-| bp          | EX.E.1 | 输入 |   1    | 内陷指令异常：BREAK                 |
+| sy          | ID.E.2 | 输入 |   1    | 内陷指令异常：SYSCALL               |
+| bp          | ID.E.2 | 输入 |   1    | 内陷指令异常：BREAK                 |
 | ri          | ID.E.2 | 输入 |   1    | 未实现指令异常                      |
 | ov          | EX.E.1 | 输入 |   1    | 运算器溢出异常                      |
 | er          | ID.E.2 | 输入 |   1    | 内陷指令异常：ERET                  |
