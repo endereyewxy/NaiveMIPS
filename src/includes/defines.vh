@@ -5,6 +5,7 @@
 `define W_OPER 5
 `define W_FUNC 4
 `define W_EXCC 5
+`define W_INTV 8
 
 `define TYPE_R 2'b00
 `define TYPE_I 2'b01
@@ -61,4 +62,12 @@
 `define FUNC_SLT  4'b1101
 `define FUNC_MUL  4'b1110
 `define FUNC_DIV  4'b1111
+
+`define EXCC_INT  5'h0
+`define EXCC_ADEL 5'h4
+`define EXCC_ADES 5'h5
+`define EXCC_SY   5'h8
+`define EXCC_BP   5'h9
+`define EXCC_RI   5'ha
+`define EXCC_OV   5'hc
 
