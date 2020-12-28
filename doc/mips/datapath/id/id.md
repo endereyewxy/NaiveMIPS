@@ -17,6 +17,8 @@
 | forward_rd_data | ID.D.3 | 输入 | W_DATA | 第二个源寄存器前推的值              |
 | branch          | ID.A.1 | 输出 | 1      | 分支跳转目标地址的有效性            |
 | branch_addr     | ID.A.1 | 输出 | W_ADDR | 分支跳转目标地址                    |
+| sy              | ID.E.2 | 输出 | 1      | 内陷指令异常：SYSCALL               |
+| bp              | ID.E.2 | 输出 | 1      | 内陷指令异常：BREAK                 |
 | ri              | ID.E.2 | 输出 | 1      | 未实现指令异常                      |
 | er              | ID.E.2 | 输出 | 1      | 内陷指令异常：ERET                  |
 | er_epc          | ID.E.2 | 输出 | W_ADDR | 内陷指令异常：ERET附加的CP0.EPC的值 |

@@ -8,6 +8,9 @@
 | rs_regf  | ID.I.2 | 输出 | W_REGF | 第一个源寄存器号                    |
 | rt_regf  | ID.I.2 | 输出 | W_REGF | 第二个源寄存器号                    |
 | rd_regf  | ID.I.2 | 输出 | W_REGF | 目标寄存器号                        |
+| sy       | ID.E.2 | 输出 |   1    | 内陷指令异常：SYSCALL               |
+| bp       | ID.E.2 | 输出 |   1    | 内陷指令异常：BREAK                 |
 | ri       | ID.E.2 | 输出 |   1    | 未实现指令异常                      |
 | er       | ID.E.2 | 输出 |   1    | 内陷指令异常：ERET                  |
 | er_epc   | ID.E.2 | 输出 | W_ADDR | 内陷指令异常：ERET附加的CP0.EPC的值 |
+
