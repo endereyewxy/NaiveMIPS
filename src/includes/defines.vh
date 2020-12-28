@@ -4,6 +4,7 @@
 `define W_TYPE 2
 `define W_OPER 5
 `define W_FUNC 4
+`define W_EXCC 5
 
 `define TYPE_R 2'b00
 `define TYPE_I 2'b01
