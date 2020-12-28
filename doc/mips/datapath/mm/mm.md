@@ -29,4 +29,3 @@
 | dbus_we     | MM.A.1 | 输出 |   4    | 访存读写控制信号                    |
 | dbus_addr   | MM.A.1 | 输出 | W_ADDR | 访存地址                            |
 | dbus_data   | MM.D.1 | 输出 | W_ADDR | 访存数据                            |
-

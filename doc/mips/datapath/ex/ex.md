@@ -12,8 +12,11 @@
 | forward_rs_data | EX.D.1 | 输入 | W_DATA | 第一个源寄存器前推的值        |
 | forward_rd      | EX.D.1 | 输入 |   1    | 第二个源寄存器前推的有效性    |
 | forward_rd_data | EX.D.1 | 输入 | W_DATA | 第二个源寄存器前推的值        |
+| rs_regf         | ID.I.2 | 输出 | W_REGF | 第一个源寄存器号              |
 | rs_data         | ID.D.4 | 输入 | W_DATA | 第一个源寄存器值              |
+| rt_regf         | ID.I.2 | 输出 | W_REGF | 第二个源寄存器号              |
 | rt_data         | ID.D.4 | 输入 | W_DATA | 第二个源寄存器值              |
+| rd_regf         | ID.I.2 | 输出 | W_REGF | 目标寄存器号                  |
 | cp0_rt_regf     | ID.I.2 | 输入 | W_REGF | 要读取的CP0寄存器号           |
 | cp0_rt_data     | EX.D.4 | 输入 | W_DATA | 要读取的CP0寄存器值           |
 | cp0_rd_regf     | ID.I.2 | 输入 | W_REGF | 要写入的CP0寄存器号，无则为零 |
