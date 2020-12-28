@@ -7,6 +7,7 @@
 | except_addr | MM.A.2 | 输入 | W_ADDR | 处理异常地址 |
 | branch      | ID.A.1 | 输入 |   1    | 分支跳转使能 |
 | branch_addr | ID.A.1 | 输入 | W_ADDR | 分支跳转地址 |
+| pc          |        | 输入 |   1    | pc地址使能   |
 | pc_addr     | IF.A.1 | 输出 | W_ADDR | 取指令地址   |
 
 
