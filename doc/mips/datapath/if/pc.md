@@ -1,12 +1,12 @@
-| 信号名称    | 方向 |  长度  |
-| ----------- | :--: | :----: |
-| clk         | 输入 |   1    |
-| rst         | 输入 |   1    |
-| stall       | 输入 |   1    |
-| except      | 输入 |   1    |
-| except_addr | 输入 | W_ADDR |
-| branch      | 输入 |   1    |
-| branch_addr | 输入 | W_ADDR |
-| pc_addr     | 输出 | W_ADDR |
+| 信号        | 线号   | 方向 |  位宽  | 描述         |
+| ----------- | ------ | :--: | :----: | ------------ |
+| clk         |        | 输入 |   1    |              |
+| rst         |        | 输入 |   1    |              |
+| stall       | IF.C.1 | 输入 |   1    |              |
+| except      | MM.A.2 | 输入 |   1    | 异常使能     |
+| except_addr | MM.A.2 | 输入 | W_ADDR | 处理异常地址 |
+| branch      | ID.A.1 | 输入 |   1    | 分支跳转使能 |
+| branch_addr | ID.A.1 | 输入 | W_ADDR | 分支跳转地址 |
+| pc_addr     | IF.A.1 | 输出 | W_ADDR | 取指令地址   |
 
 
