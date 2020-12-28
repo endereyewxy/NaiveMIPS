@@ -7,8 +7,8 @@
 | func      | ID.I.2 | 输出 | W_FUNC | 运算码                              |
 | imme      | ID.D.1 | 输出 | W_DATA | 扩展之后的立即数                    |
 | rs        | ID.I.2 | 输出 | W_REGF | 第一个寄存器号                      |
-| rd        | ID.I.2 | 输出 | W_REGF | 第二个寄存器号                      |
-| rt        | ID.I.2 | 输出 | W_REGF | 第三个寄存器号                      |
+| rt        | ID.I.2 | 输出 | W_REGF | 第二个寄存器号                      |
+| rd        | ID.I.2 | 输出 | W_REGF | 第三个寄存器号                      |
 | intr_vect | ID.E.2 | 输出 | W_INTV | 中断向量                            |
 | ri        | ID.E.2 | 输出 |   1    | 未实现指令异常                      |
 | er        | ID.E.2 | 输出 |   1    | 内陷指令异常：ERET                  |
