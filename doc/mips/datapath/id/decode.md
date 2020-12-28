@@ -1,0 +1,15 @@
+| 信号名称  |  线号  | 方向 |  位宽  | 描述                                |
+| --------- | :----: | :--: | :----: | ----------------------------------- |
+| inst      | ID.I.1 | 输入 | W_DATA | 指令                                |
+| intr_vect | ID.E.3 | 输入 | W_INTV | 中断向量                            |
+| type      | ID.I.2 | 输出 | W_TYPE | 指令类型（R，I，J）                 |
+| oper      | ID.I.2 | 输出 | W_OPER | 操作码                              |
+| func      | ID.I.2 | 输出 | W_FUNC | 运算码                              |
+| imme      | ID.D.1 | 输出 | W_DATA | 扩展之后的立即数                    |
+| rs        | ID.I.2 | 输出 | W_REGF | 第一个寄存器号                      |
+| rd        | ID.I.2 | 输出 | W_REGF | 第二个寄存器号                      |
+| rt        | ID.I.2 | 输出 | W_REGF | 第三个寄存器号                      |
+| intr_vect | ID.E.2 | 输出 | W_INTV | 中断向量                            |
+| ri        | ID.E.2 | 输出 |   1    | 未实现指令异常                      |
+| er        | ID.E.2 | 输出 |   1    | 内陷指令异常：ERET                  |
+| er_epc    | ID.E.2 | 输出 | W_ADDR | 内陷指令异常：ERET附加的CP0.EPC的值 |
