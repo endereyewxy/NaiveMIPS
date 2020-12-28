@@ -8,5 +8,5 @@
 | en      | MM.A.1 | 输出 |   1    | 访问内存使能                                 |
 | wen     | MM.A.1 | 输出 |   4    | 读全为0，写全为1                             |
 | addr    | MM.A.1 | 输出 | W_ADDR | 读/写内存的地址                              |
-| data    | MM.D.1 | 输出 | W_ADDR | 输出到regsrc的数据                           |
+| data    | MM.D.1 | 输出 | W_ADDR | 输出的数据                                   |
 
