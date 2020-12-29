@@ -12,7 +12,7 @@ module memctl(
     output logic `W_DATA dbus_data
     );
 
-    assign dbus_en   = `IS_OPER_MM(oper)     ? 1'b1 : 1'b0   ;
+    assign dbus_en   = `IS_OPER_MM(oper)    ? 1'b1       : 1'b0   ;
 
     assign dbus_we   =  oper == `OPER_SB    ? 4'b0001    :
                         oper == `OPER_SH    ? 4'b0011    :
