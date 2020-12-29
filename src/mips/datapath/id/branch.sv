@@ -2,15 +2,15 @@
 `include "defines.vh"
 
 module branch(
-    input  wire `W_OPER oper       ,
-    input  wire `W_DATA imme       ,
-    input  wire `W_DATA source_a   ,
-    input  wire `W_DATA source_b   ,
-    input  wire `W_ADDR pc         ,
-    output wire         branch     ,
-    output wire `W_ADDR branch_addr);
+    input  logic `W_OPER oper       ,
+    input  logic `W_DATA imme       ,
+    input  logic `W_DATA source_a   ,
+    input  logic `W_DATA source_b   ,
+    input  logic `W_ADDR pc         ,
+    output logic         branch     ,
+    output logic `W_ADDR branch_addr);
     
-    wire `W_ADDR rpc;
+    logic `W_ADDR rpc;
     
     assign rpc = pc + 4;
     

@@ -1,26 +1,26 @@
 `timescale 1ns/1ps
 
 module control(
-    input  wire ibus       ,
-    input  wire dbus       ,
-    input  wire forward    ,
-    input  wire mulalu     ,
-    input  wire except     ,
-    output wire if_id_stall,
-    output wire if_id_flush,
-    output wire id_ex_stall,
-    output wire id_ex_flush,
-    output wire ex_mm_stall,
-    output wire ex_mm_flush,
-    output wire mm_wb_stall,
-    output wire mm_wb_flush,
-    output wire pc_stall   ,
-    output wire pc_flush   );
+    input  logic ibus       ,
+    input  logic dbus       ,
+    input  logic forward    ,
+    input  logic mulalu     ,
+    input  logic except     ,
+    output logic if_id_stall,
+    output logic if_id_flush,
+    output logic id_ex_stall,
+    output logic id_ex_flush,
+    output logic ex_mm_stall,
+    output logic ex_mm_flush,
+    output logic mm_wb_stall,
+    output logic mm_wb_flush,
+    output logic pc_stall   ,
+    output logic pc_flush   );
     
-    wire if_id;
-    wire id_ex;
-    wire ex_mm;
-    wire mm_wb;
+    logic if_id;
+    logic id_ex;
+    logic ex_mm;
+    logic mm_wb;
     
     assign {if_id, id_ex, ex_mm, mm_wb} =
         dbus    ? 4'b0001 :

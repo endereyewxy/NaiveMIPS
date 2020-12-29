@@ -2,26 +2,26 @@
 `include "defines.vh"
 
 module decode(
-    input  wire `W_DATA inst   ,
-    output wire `W_TYPE type   ,
-    output wire `W_OPER oper   ,
-    output wire `W_FUNC func   ,
-    output wire `W_DATA imme   ,
-    output wire `W_REGF rs_regf,
-    output wire `W_REGF rt_regf,
-    output wire `W_REGF rd_regf,
-    output wire         sy     ,
-    output wire         bp     ,
-    output wire         ri     ,
-    output wire         er     );
+    input  logic `W_DATA inst   ,
+    output logic `W_TYPE ityp   ,
+    output logic `W_OPER oper   ,
+    output logic `W_FUNC func   ,
+    output logic `W_DATA imme   ,
+    output logic `W_REGF rs_regf,
+    output logic `W_REGF rt_regf,
+    output logic `W_REGF rd_regf,
+    output logic         sy     ,
+    output logic         bp     ,
+    output logic         ri     ,
+    output logic         er     );
     
-    wire [5:0] f_oper;
-    wire [5:0] f_func;
+    logic [5:0] f_oper;
+    logic [5:0] f_func;
     
     assign f_oper = inst[31:26];
     assign f_func = inst[5 :0 ];
     
-    wire n_ri;
+    logic n_ri;
     
     assign {n_ri, oper, func} =
         (f_oper == 6'b000000) ? (
@@ -33,9 +33,9 @@ module decode(
             (f_func == 6'b000000) ? {1'b1, `OPER_ALUS, `FUNC_SLL } : // sll
             (f_func == 6'b000010) ? {1'b1, `OPER_ALUS, `FUNC_SRL } : // srl
             (f_func == 6'b000011) ? {1'b1, `OPER_ALUS, `FUNC_SRA } : // sra
-            (f_func == 6'b000100) ? {1'b1, `OPER_ALUS, `FUNC_SLLV} : // sllv
-            (f_func == 6'b000110) ? {1'b1, `OPER_ALUS, `FUNC_SRLV} : // srlv
-            (f_func == 6'b000111) ? {1'b1, `OPER_ALUS, `FUNC_SRAV} : // srav
+            (f_func == 6'b000100) ? {1'b1, `OPER_ALUS, `FUNC_SLL } : // sllv
+            (f_func == 6'b000110) ? {1'b1, `OPER_ALUS, `FUNC_SRL } : // srlv
+            (f_func == 6'b000111) ? {1'b1, `OPER_ALUS, `FUNC_SRA } : // srav
             
             (f_func == 6'b010000) ? {1'b1, `OPER_MFHI, `FUNC_AND } : // mfhi
             (f_func == 6'b010010) ? {1'b1, `OPER_MFLO, `FUNC_AND } : // mflo
@@ -100,7 +100,7 @@ module decode(
             0) :
         0;
     
-    assign type =
+    assign ityp =
         (inst[31] | inst[29] | inst[28] | f_oper == 6'b000001) ? `TYPE_I :
         (func == `FUNC_SLL     |
          func == `FUNC_SRL     |
@@ -111,27 +111,27 @@ module decode(
          oper == `OPER_ERET    )                               ? `TYPE_J : `TYPE_R;
     
     assign imme =
-        (type == `TYPE_I) ? (
+        (ityp == `TYPE_I) ? (
             (func == `FUNC_SLL |
              func == `FUNC_SRL |
              func == `FUNC_SRA ) ? {27'h0         , inst[10:6]} :    // 特殊处理
             (oper == `OPER_ALUU) ? {16'h0         , inst[15:6]} :    // 无符号扩展
                                    {{16{inst[15]}}, inst[15:0]}):    // 有符号扩展
-        (type == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0; // 皆可
+        (ityp == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0; // 皆可
     
-    wire `W_REGF rd_reg_;
+    logic `W_REGF rd_reg_;
     
     // MTC0和MFC0需要特殊处理：它们的没有第一个源寄存器
-    assign rs_regf = (type   == `TYPE_J    |
+    assign rs_regf = (ityp   == `TYPE_J    |
                       oper   == `OPER_MTC0 |
                       oper   == `OPER_MFC0 ) ? 0 : inst[25:21];
     // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
-    assign rt_regf = (type   == `TYPE_J    |
-                      type   == `TYPE_I    ) ? 0 : inst[20:16];
-    assign rd_reg_ = (type   == `TYPE_I    ) ?     inst[20:16] :
-                     (type   == `TYPE_J    ) ? 0 : inst[15:11];
+    assign rt_regf = (ityp   == `TYPE_J    |
+                      ityp   == `TYPE_I    ) ? 0 : inst[20:16];
+    assign rd_reg_ = (ityp   == `TYPE_I    ) ?     inst[20:16] :
+                     (ityp   == `TYPE_J    ) ? 0 : inst[15:11];
     
-    wire jar, jal, bal;
+    logic jar, jal, bal;
     
     assign jar = f_oper == 6'b000000 & f_func == 6'b001001;
     assign jal = f_oper == 6'b000011;
