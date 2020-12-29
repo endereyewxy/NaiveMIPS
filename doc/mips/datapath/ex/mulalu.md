@@ -8,7 +8,6 @@
 | func          |        | 输入 | W_FUNC | 运算码                |
 | source_a      |        | 输入 | W_DATA | 第一个操作数          |
 | source_b      |        | 输入 | W_DATA | 第二个操作数          |
-| result        |        | 输出 | W_DATA | 运算结果              |
 | hi            |        | 输出 | W_DATA | HI寄存器当前值        |
 | hi_write      |        | 输入 |   1    | 写HI寄存器使能        |
 | hi_write_data |        | 输入 | W_DATA | 写HI寄存器数据        |

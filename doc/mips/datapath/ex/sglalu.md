@@ -11,7 +11,6 @@
 | mulalu_func     |        | 输出 | W_FUNC | 输出到多周期的运算码             |
 | mulalu_source_a |        | 输出 | W_DATA | 输出到多周期的第一个操作数       |
 | mulalu_source_b |        | 输出 | W_DATA | 输出到多周期的第二个操作数       |
-| mulalu_result   |        | 输入 | W_DATA | 多周期运算结果                   |
 | hi              |        | 输入 | W_DATA | HI寄存器当前值                   |
 | hi_write        |        | 输出 |   1    | 写HI寄存器使能                   |
 | hi_write_data   |        | 输出 | W_DATA | 写HI寄存器数据                   |
