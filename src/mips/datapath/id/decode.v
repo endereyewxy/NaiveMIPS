@@ -13,8 +13,7 @@ module decode(
     output wire         sy     ,
     output wire         bp     ,
     output wire         ri     ,
-    output wire         er     ,
-    output wire `W_ADDR er_epc );
+    output wire         er     );
     
     wire [5:0] f_oper;
     wire [5:0] f_func;
