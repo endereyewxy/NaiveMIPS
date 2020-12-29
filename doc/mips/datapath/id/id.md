@@ -13,8 +13,8 @@
 | rt_data         | ID.D.4 | 输入 | W_DATA | 第二个源寄存器值           |
 | forward_rs      | ID.D.3 | 输入 | 1      | 第一个源寄存器前推的有效性 |
 | forward_rs_data | ID.D.3 | 输入 | W_DATA | 第一个源寄存器前推的值     |
-| forward_rd      | ID.D.3 | 输入 | 1      | 第二个源寄存器前推的有效性 |
-| forward_rd_data | ID.D.3 | 输入 | W_DATA | 第二个源寄存器前推的值     |
+| forward_rt      | ID.D.3 | 输入 | 1      | 第二个源寄存器前推的有效性 |
+| forward_rt_data | ID.D.3 | 输入 | W_DATA | 第二个源寄存器前推的值     |
 | branch          | ID.A.1 | 输出 | 1      | 分支跳转目标地址的有效性   |
 | branch_addr     | ID.A.1 | 输出 | W_ADDR | 分支跳转目标地址           |
 | sy              | ID.E.2 | 输出 | 1      | 内陷指令异常：SYSCALL      |

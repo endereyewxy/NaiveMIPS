@@ -10,8 +10,8 @@
 | imme            | ID.D.1 | 输入 | W_DATA | 扩展之后的立即数              |
 | forward_rs      | EX.D.1 | 输入 |   1    | 第一个源寄存器前推的有效性    |
 | forward_rs_data | EX.D.1 | 输入 | W_DATA | 第一个源寄存器前推的值        |
-| forward_rd      | EX.D.1 | 输入 |   1    | 第二个源寄存器前推的有效性    |
-| forward_rd_data | EX.D.1 | 输入 | W_DATA | 第二个源寄存器前推的值        |
+| forward_rt      | EX.D.1 | 输入 |   1    | 第二个源寄存器前推的有效性    |
+| forward_rt_data | EX.D.1 | 输入 | W_DATA | 第二个源寄存器前推的值        |
 | rs_regf         | ID.I.2 | 输出 | W_REGF | 第一个源寄存器号              |
 | rs_data         | ID.D.4 | 输入 | W_DATA | 第一个源寄存器值              |
 | rt_regf         | ID.I.2 | 输出 | W_REGF | 第二个源寄存器号              |
