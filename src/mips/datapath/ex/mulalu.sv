@@ -8,7 +8,7 @@ module mulalu(
     input  logic         reg_stall    ,
     output logic         alu_stall    ,
     
-    input  logic `W_OPER oper         ,
+    input  logic         sign         ,
     input  logic `W_FUNC func         ,
     input  logic `W_DATA source_a     ,
     input  logic `W_DATA source_b     ,
@@ -27,12 +27,9 @@ module mulalu(
         if (lo_write) lo <= lo_write_data;
     end
     
-    
-    logic is_sgn;
     logic is_mul;
     logic is_div;
     
-    assign is_sgn = oper == `OPER_ALUS;
     assign is_mul = func == `FUNC_MUL;
     assign is_div = func == `FUNC_DIV;
     
@@ -63,7 +60,7 @@ module mulalu(
                         state    <= WORK;
                         {hi, lo} <= 64'h0;
                         ready    <= 1'b0;
-                        if (is_sgn) begin
+                        if (sign) begin
                             number_a <= {{32{source_a[31]}}, source_a};
                             number_b <= {{32{source_b[31]}}, source_b};
                         end else begin
@@ -97,11 +94,11 @@ module mulalu(
                         {hi, lo} <= 64'h0;
                         ready    <= 1'b0;
                         count    <= 6'd32;
-                        if (is_sgn & source_a[31])
+                        if (sign & source_a[31])
                             number_a <= {32'h0, ~source_a + 1};
                         else
                             number_a <= {32'h0,  source_a};
-                        if (is_sgn & source_b[31])
+                        if (sign & source_b[31])
                             number_b <= {~source_b + 1, 32'h0};
                         else
                             number_b <= { source_b    , 32'h0};
@@ -110,14 +107,13 @@ module mulalu(
                     if (count == 0) begin
                         state <= DONE;
                         ready <= 1'b1;
-                        if (is_sgn & (source_a[31] ^ source_b[31]))
+                        if (sign & (source_a[31] ^ source_b[31])) begin
                             hi <= ~number_a[63:32] + 1;
-                        else
-                            hi <=  number_a[63:32];
-                        if (is_sgn & (source_a[31] ^ source_b[63]))
                             lo <= ~number_a[31:0] + 1;
-                        else
+                        end else begin
+                            hi <=  number_a[63:32];
                             lo <=  number_a[31:0];
+                        end
                     end else begin
                         if ({number_a[62:0], 1'b0} >= number_b)
                             number_a <= {number_a[62:0], 1'b0} - number_b + 1;
