@@ -7,14 +7,14 @@ interface ader(
     logic `W_DATA addr);
     
     modport master(
-        output adel,
-        output ades,
-        output addr);
-    
-    modport slave(
         input adel,
         input ades,
         input addr);
+    
+    modport slave(
+        output adel,
+        output ades,
+        output addr);
     
 endinterface
 
