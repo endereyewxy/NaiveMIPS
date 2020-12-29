@@ -8,6 +8,7 @@
 | cp0_rd_data     | EX.D.3 | 输出 | W_DATA | 要写入的CP0寄存器值           |
 | source_a        | EX.D.2 | 输入 | W_DATA | 第一个操作数                  |
 | source_b        | EX.D.2 | 输入 | W_DATA | 第二个操作数                  |
+| mulalu_result   |        | 输入 | W_DATA | 多周期运算结果                |
 | result          | EX.D.5 | 输出 | W_DATA | 运算结果                      |
 | mulalu_func     |        | 输出 | W_FUNC | 输出到多周期的运算码          |
 | mulalu_source_a |        | 输出 | W_DATA | 输出到多周期的第一个操作数    |
