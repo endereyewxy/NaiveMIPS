@@ -2,9 +2,7 @@
 | --------------- | :----: | :--: | :----: | -------------------------------- |
 | oper            | ID.I.2 | 输入 | W_OPER | 操作码                           |
 | func            | ID.I.2 | 输入 | W_FUNC | 运算码                           |
-| cp0_rt_regf     | ID.I.2 | 输入 | W_REGF | 要读取的CP0寄存器号              |
 | cp0_rt_data     | EX.D.4 | 输入 | W_DATA | 要读取的CP0寄存器值              |
-| cp0_rd_regf     | ID.I.2 | 输入 | W_REGF | 要写入的CP0寄存器号，无则为零    |
 | cp0_rd_data     | EX.D.3 | 输出 | W_DATA | 要写入的CP0寄存器值              |
 | source_a        | EX.D.2 | 输入 | W_DATA | 第一个操作数                     |
 | source_b        | EX.D.2 | 输入 | W_DATA | 第二个操作数                     |
