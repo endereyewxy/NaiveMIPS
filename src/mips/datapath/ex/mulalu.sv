@@ -12,7 +12,6 @@ module mulalu(
     input  logic `W_FUNC func         ,
     input  logic `W_DATA source_a     ,
     input  logic `W_DATA source_b     ,
-    output logic `W_DATA result       ,
     
     output logic `W_DATA hi           ,
     input  logic         hi_write     ,
