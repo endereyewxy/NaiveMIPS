@@ -21,11 +21,6 @@ module mulalu(
     input  logic         lo_write     ,
     input  logic `W_DATA lo_write_data);
     
-    always @(posedge clk) begin
-        if (hi_write) hi <= hi_write_data;
-        if (lo_write) lo <= lo_write_data;
-    end
-    
     logic is_mul;
     logic is_div;
     
@@ -127,6 +122,9 @@ module mulalu(
                 default:;
             endcase
             
+        end else begin
+            if (hi_write) hi <= hi_write_data;
+            if (lo_write) lo <= lo_write_data;
         end
     end
 

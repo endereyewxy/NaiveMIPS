@@ -9,7 +9,7 @@ module sim_mulalu();
     logic         reg_stall    ;
     logic         alu_stall    ;
     
-    logic `W_OPER oper         ;
+    logic         sign         ;
     logic `W_FUNC func         ;
     logic `W_DATA source_a     ;
     logic `W_DATA source_b     ;
@@ -31,12 +31,12 @@ module sim_mulalu();
     initial begin
         clk <= 1'b0;
         rst <= 1'b1;
-        oper <= 0;
+        sign <= 0;
         func <= 0;
         
         #20
         rst <= 1'b0;
-        oper <= `OPER_ALUS;
+        sign <= 1'b1;
         func <= `FUNC_DIV;
         source_a <= 19;
         source_b <= -4;
