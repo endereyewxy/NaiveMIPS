@@ -55,7 +55,7 @@ module decode(
             (f_func == 6'b011011) ? {1'b1, `OPER_ALUU, `FUNC_DIV } : // divu
             
             (f_func == 6'b001000) ? {1'b1, `OPER_JR  , `FUNC_AND } : // jr
-            (f_func == 6'b001001) ? {1'b1, `OPER_JR  , `FUNC_AND } : // jral !!!!!
+            (f_func == 6'b001001) ? {1'b1, `OPER_JR  , `FUNC_AND } : // jral
             
             (f_func == 6'b001101) ? {1'b1, `OPER_BREAK  , `FUNC_AND } : // break
             (f_func == 6'b001100) ? {1'b1, `OPER_SYSCALL, `FUNC_AND } : // syscall
@@ -72,16 +72,16 @@ module decode(
         (f_oper == 6'b001011) ? {1'b1, `OPER_ALUU, `FUNC_SLT } : // sltiu
         
         (f_oper == 6'b000010) ? {1'b1, `OPER_J   , `FUNC_AND } : // j
-        (f_oper == 6'b000011) ? {1'b1, `OPER_J   , `FUNC_AND } : // jal !!!!!
+        (f_oper == 6'b000011) ? {1'b1, `OPER_J   , `FUNC_AND } : // jal
         (f_oper == 6'b000100) ? {1'b1, `OPER_BEQ , `FUNC_AND } : // beq
         (f_oper == 6'b000111) ? {1'b1, `OPER_BGTZ, `FUNC_AND } : // bgtz
         (f_oper == 6'b000110) ? {1'b1, `OPER_BLEZ, `FUNC_AND } : // blez
         (f_oper == 6'b000101) ? {1'b1, `OPER_BNE , `FUNC_AND } : // bne
         (f_oper == 6'b000001) ? (
             (inst[20:16] == 5'b00000) ? {1'b1, `OPER_BLTZ, `FUNC_AND } : // bltz 
-            (inst[20:16] == 5'b10000) ? {1'b1, `OPER_BLTZ, `FUNC_AND } : // bltzal !!!!!
+            (inst[20:16] == 5'b10000) ? {1'b1, `OPER_BLTZ, `FUNC_AND } : // bltzal
             (inst[20:16] == 5'b00001) ? {1'b1, `OPER_BGEZ, `FUNC_AND } : // bgez
-            (inst[20:16] == 5'b10001) ? {1'b1, `OPER_BGEZ, `FUNC_AND } : // bgezal !!!!!
+            (inst[20:16] == 5'b10001) ? {1'b1, `OPER_BGEZ, `FUNC_AND } : // bgezal
             0) :
         
         (f_oper == 6'b100000) ? {1'b1, `OPER_LB  , `FUNC_AND } : // lb
@@ -114,21 +114,22 @@ module decode(
         (type == `TYPE_I) ? (
             (func == `FUNC_SLL |
              func == `FUNC_SRL |
-             func == `FUNC_SRA ) ? {27'h0         , inst[10:6]} :
-            (oper == `OPER_ALUS) ? {{16{inst[15]}}, inst[15:6]} :
-                                                    inst[15:0]) :
-        (type == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0;
+             func == `FUNC_SRA ) ? {27'h0         , inst[10:6]} :    // 特殊处理
+            (oper == `OPER_ALUS) ? {{16{inst[15]}}, inst[15:6]} :    // 有符号扩展
+                                   {16'h0         , inst[15:0]}):    // 无符号扩展
+        (type == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0; // 无符号扩展
     
     wire `W_REGF rd_reg_;
     
+    // MTC0和MFC0需要特殊处理：它们的没有第一个源寄存器
     assign rs_regf = (type   == `TYPE_J    |
                       oper   == `OPER_MTC0 |
                       oper   == `OPER_MFC0 ) ? 0 : inst[25:21];
+    // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
     assign rt_regf = (type   == `TYPE_J    |
-                      f_oper == 6'b000001  ) ? 0 : inst[20:16];
-    assign rd_reg_ = (type   == `TYPE_I    |
-                      oper   == `OPER_MTC0 |
-                      oper   == `OPER_MFC0 ) ? inst[15:11] : 0;
+                      type   == `TYPE_I    ) ? 0 : inst[20:16];
+    assign rd_reg_ = (type   == `TYPE_I    ) ?     inst[20:16] :
+                     (type   == `TYPE_J    ) ? 0 : inst[15:11];
     
     wire jar, jal, bal;
     
