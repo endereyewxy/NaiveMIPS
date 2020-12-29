@@ -2,28 +2,28 @@
 `include "defines.vh"
 
 module forward(
-    input  wire `W_OPER oper_id           ,
-    input  wire `W_OPER oper_ex           ,
-    input  wire `W_OPER oper_mm           ,
-    input  wire `W_REGF from_ex_regf      ,
-    input  wire `W_DATA from_ex_data      ,
-    input  wire `W_REGF from_mm_regf      ,
-    input  wire `W_DATA from_mm_data      ,
-    input  wire `W_REGF from_wb_regf      ,
-    input  wire `W_DATA from_wb_data      ,
-    input  wire `W_REGF into_id_rs        ,
-    input  wire `W_REGF into_id_rt        ,
-    input  wire `W_REGF into_ex_rs        ,
-    input  wire `W_REGF into_ex_rt        ,
-    output wire         stall             ,
-    output wire         forward_id_rs     ,
-    output wire `W_DATA forward_id_rs_data,
-    output wire         forward_id_rt     ,
-    output wire `W_DATA forward_id_rt_data,
-    output wire         forward_ex_rs     ,
-    output wire `W_DATA forward_ex_rs_data,
-    output wire         forward_ex_rt     ,
-    output wire `W_DATA forward_ex_rt_data);
+    input  logic `W_OPER oper_id           ,
+    input  logic `W_OPER oper_ex           ,
+    input  logic `W_OPER oper_mm           ,
+    input  logic `W_REGF from_ex_regf      ,
+    input  logic `W_DATA from_ex_data      ,
+    input  logic `W_REGF from_mm_regf      ,
+    input  logic `W_DATA from_mm_data      ,
+    input  logic `W_REGF from_wb_regf      ,
+    input  logic `W_DATA from_wb_data      ,
+    input  logic `W_REGF into_id_rs        ,
+    input  logic `W_REGF into_id_rt        ,
+    input  logic `W_REGF into_ex_rs        ,
+    input  logic `W_REGF into_ex_rt        ,
+    output logic         stall             ,
+    output logic         forward_id_rs     ,
+    output logic `W_DATA forward_id_rs_data,
+    output logic         forward_id_rt     ,
+    output logic `W_DATA forward_id_rt_data,
+    output logic         forward_ex_rs     ,
+    output logic `W_DATA forward_ex_rs_data,
+    output logic         forward_ex_rt     ,
+    output logic `W_DATA forward_ex_rt_data);
     
     assign {forward_id_rs, forward_id_rs_data} =
         (from_ex_regf != 0 & from_ex_regf == into_id_rs) ? {1'b1, from_ex_data} :
@@ -48,24 +48,22 @@ module forward(
     // 2. ID依赖EX，并且EX是访存指令；
     // 3. ID依赖MM，并且ID是分支指令。
     
-    wire is_id_jb ;
-    wire is_ex_mem;
-    wire is_mm_mem;
+    logic is_id_jb;
+    logic is_ex_mm;
     
-    assign is_id_jb  = (oper_id & 5'b11000) == 5'b01000; // 参考defines.vh
-    assign is_ex_mem = (oper_ex & 5'b11000) == 5'b10000;
-    assign is_mm_mem = (oper_mm & 5'b11000) == 5'b10000;
+    assign is_id_jb = `IS_OPER_JB(oper_id);
+    assign is_ex_mm = `IS_OPER_MM(oper_ex);
     
-    wire id_ex;
-    wire id_mm;
+    logic id_ex;
+    logic id_mm;
     
     assign id_ex = from_ex_regf == into_id_rs | from_ex_regf == into_id_rt;
     assign id_mm = from_mm_regf == into_id_rs | from_mm_regf == into_id_rt;
     
     assign stall =
-        (id_ex & is_id_jb ) |
-        (id_ex & is_ex_mem) |
-        (id_mm & is_id_jb ) ;
+        (id_ex & is_id_jb) |
+        (id_ex & is_ex_mm) |
+        (id_mm & is_id_jb) ;
     
 endmodule
 
