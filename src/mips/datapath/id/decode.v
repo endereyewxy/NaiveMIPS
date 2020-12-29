@@ -115,9 +115,9 @@ module decode(
             (func == `FUNC_SLL |
              func == `FUNC_SRL |
              func == `FUNC_SRA ) ? {27'h0         , inst[10:6]} :    // 特殊处理
-            (oper == `OPER_ALUS) ? {{16{inst[15]}}, inst[15:6]} :    // 有符号扩展
-                                   {16'h0         , inst[15:0]}):    // 无符号扩展
-        (type == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0; // 无符号扩展
+            (oper == `OPER_ALUU) ? {16'h0         , inst[15:6]} :    // 无符号扩展
+                                   {{16{inst[15]}}, inst[15:0]}):    // 有符号扩展
+        (type == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0; // 皆可
     
     wire `W_REGF rd_reg_;
     
