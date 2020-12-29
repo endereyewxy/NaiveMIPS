@@ -84,14 +84,14 @@ module decode(
             (inst[20:16] == 5'b10001) ? {1'b1, `OPER_BGEZ, `FUNC_AND } : // bgezal
             0) :
         
-        (f_oper == 6'b100000) ? {1'b1, `OPER_LB  , `FUNC_AND } : // lb
-        (f_oper == 6'b100100) ? {1'b1, `OPER_LBU , `FUNC_AND } : // lbu
-        (f_oper == 6'b100001) ? {1'b1, `OPER_LH  , `FUNC_AND } : // lh
-        (f_oper == 6'b100101) ? {1'b1, `OPER_LHU , `FUNC_AND } : // lhu
-        (f_oper == 6'b100011) ? {1'b1, `OPER_LW  , `FUNC_AND } : // lw
-        (f_oper == 6'b101000) ? {1'b1, `OPER_SB  , `FUNC_AND } : // sb
-        (f_oper == 6'b101001) ? {1'b1, `OPER_SH  , `FUNC_AND } : // sh
-        (f_oper == 6'b101011) ? {1'b1, `OPER_SW  , `FUNC_AND } : // sw
+        (f_oper == 6'b100000) ? {1'b1, `OPER_LB  , `FUNC_ADD } : // lb
+        (f_oper == 6'b100100) ? {1'b1, `OPER_LBU , `FUNC_ADD } : // lbu
+        (f_oper == 6'b100001) ? {1'b1, `OPER_LH  , `FUNC_ADD } : // lh
+        (f_oper == 6'b100101) ? {1'b1, `OPER_LHU , `FUNC_ADD } : // lhu
+        (f_oper == 6'b100011) ? {1'b1, `OPER_LW  , `FUNC_ADD } : // lw
+        (f_oper == 6'b101000) ? {1'b1, `OPER_SB  , `FUNC_ADD } : // sb
+        (f_oper == 6'b101001) ? {1'b1, `OPER_SH  , `FUNC_ADD } : // sh
+        (f_oper == 6'b101011) ? {1'b1, `OPER_SW  , `FUNC_ADD } : // sw
         
         (f_oper == 6'b010000) ? (
             (inst[25:21] == 5'b00100) ? {1'b1, `OPER_MTC0, `FUNC_AND} : // mtc0
