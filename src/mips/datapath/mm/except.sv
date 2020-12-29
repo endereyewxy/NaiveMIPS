@@ -4,11 +4,8 @@
 module except(
     input  logic         slot       ,
     input  logic `W_INTV intr_vect  ,
-    input  logic         ibus_adel  ,
-    input  logic `W_ADDR ibus_addr  ,
-    input  logic         dbus_adel  ,
-    input  logic         dbus_ades  ,
-    input  logic `W_ADDR dbus_addr  ,
+           ader.master   ibus       ,
+           ader.master   dbus       ,
     input  logic         sy         ,
     input  logic         bp         ,
     input  logic         ri         ,
@@ -29,12 +26,12 @@ module except(
     
     assign {actual_except, cp0_exc} =
         (intr_vect != 0)        ? {1'b1, `EXCC_INT } :
-         ibus_adel              ? {1'b1, `EXCC_ADEL} :
+         ibus.adel              ? {1'b1, `EXCC_ADEL} :
          ri                     ? {1'b1, `EXCC_RI  } :
          ov                     ? {1'b1, `EXCC_OV  } :
          bp                     ? {1'b1, `EXCC_BP  } :
          sy                     ? {1'b1, `EXCC_SY  } :
-        (dbus_ades | dbus_ades) ? {1'b1, `EXCC_ADES} : 0;
+        (dbus.ades | dbus.ades) ? {1'b1, `EXCC_ADES} : 0;
     
     assign except      = actual_except | er;
     assign except_addr = actual_except ? 32'hbfc00380 : er ? er_epc : 0;
@@ -43,7 +40,7 @@ module except(
     assign cp0_bd  = actual_except & slot;
     assign cp0_exl = actual_except;
     assign cp0_epc = slot ? (pc - 4) : pc;
-    assign cp0_bva = ibus_adel ? ibus_addr : (dbus_adel | dbus_ades) ? dbus_addr : 0;
+    assign cp0_bva = ibus.adel ? ibus.addr : (dbus.adel | dbus.ades) ? dbus.addr : 0;
     
 endmodule
 
