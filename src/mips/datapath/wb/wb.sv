@@ -1,4 +1,6 @@
 `timescale 1ns / 1ps
+`include "defines.vh"
+
 module wb(
     input  logic `W_OPER oper        ,
     input  logic `W_REGF rd_regf     ,
