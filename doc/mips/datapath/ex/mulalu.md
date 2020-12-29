@@ -4,6 +4,7 @@
 | rst           |        | 输入 |   1    | 复位                  |
 | reg_stall     |        | 输入 |   1    | ID-EX间寄存器停顿信号 |
 | alu_stall     | EX.C.1 | 输出 |   1    | 停顿请求              |
+| sign          |        | 输入 |   1    | 是否为有符号运算      |
 | func          |        | 输入 | W_FUNC | 运算码                |
 | source_a      |        | 输入 | W_DATA | 第一个操作数          |
 | source_b      |        | 输入 | W_DATA | 第二个操作数          |
