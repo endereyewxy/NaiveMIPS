@@ -11,8 +11,6 @@ module sglalu(
    output logic `W_DATA result,
    output logic         mulalu_sign,
    output logic `W_FUNC mulalu_func,
-   output logic `W_DATA mulalu_source_a,
-   output logic `W_DATA mulalu_source_b,
    input  logic `W_DATA hi,
    output logic         hi_write,
    output logic `W_DATA hi_write_data,
@@ -37,8 +35,6 @@ module sglalu(
     assign mulalu_func     =  (func == `FUNC_MUL | func == `FUNC_DIV) ? func : 5'b00000;
     assign mulalu_sign     =  (mulalu_func == 5'b00000) ? 1'b0 :
                               (oper == `OPER_ALUU)      ? 1'b0 : 1'b1;
-    assign mulalu_source_a =  source_a;
-    assign mulalu_source_b =  source_b;
 
     assign hi_write        =  (oper == `OPER_MTHI) ? 1'b1 : 1'b0;
     assign hi_write_data   =  source_a;

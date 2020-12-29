@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `include "defines.vh"
 
-module alu_src(
+module alusrc(
     input  logic `W_TYPE ityp,
     input  logic `W_OPER oper,
     input  logic `W_DATA imme,
