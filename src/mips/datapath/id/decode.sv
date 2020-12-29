@@ -128,7 +128,8 @@ module decode(
     // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
     assign rt_regf = (ityp   == `TYPE_J    |
                       ityp   == `TYPE_I    ) ? 0 : inst[20:16];
-    assign rd_reg_ = (ityp   == `TYPE_I    ) ?     inst[20:16] :
+    assign rd_reg_ = `IS_OPER_JB(oper)       ? 0               :
+                     (ityp   == `TYPE_I    ) ?     inst[20:16] :
                      (ityp   == `TYPE_J    ) ? 0 : inst[15:11];
     
     logic jar, jal, bal;
