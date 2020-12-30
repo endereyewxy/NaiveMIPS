@@ -5,7 +5,6 @@ module memctl(
     input  logic `W_OPER oper       ,
     input  logic `W_ADDR source_addr,
     input  logic `W_DATA source_data,
-    input  logic `W_ADDR pc         ,
     output logic         dbus_en    ,
     output logic [3:0]   dbus_we    ,
     output logic `W_ADDR dbus_addr  ,
