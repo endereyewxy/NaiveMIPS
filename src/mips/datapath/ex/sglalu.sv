@@ -56,7 +56,7 @@ module sglalu(
                               (func == `FUNC_ADD) ? (add_result)                                                         :
                               (func == `FUNC_SUB) ? (sub_result)                                                         :
                               (func == `FUNC_SLT) ? 
-                                    ((oper == `OPER_ALUS)   ? (slt_result)    :                            
+                                    ((oper == `OPER_ALUS)   ? (slt_result) :                            
                                      ((source_a < source_b) ? {31'b0,1'b1} : 32'b0))                                     : cp0_rt_data;
                                                 
                               
