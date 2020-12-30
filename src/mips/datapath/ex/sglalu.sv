@@ -47,8 +47,8 @@ module sglalu(
                                    ((oper == `OPER_MFHI)  ? hi        : 
                                     (oper == `OPER_MFLO)  ? lo        : (source_a & source_b))                           :
                               (func == `FUNC_OR)  ? (source_a | source_b)                                                :
-                              (func == `FUNC_XOR) ? (source_a ^~ source_b)                                               :
-                              (func == `FUNC_NOR) ? (source_a ^ source_b)                                                :
+                              (func == `FUNC_XOR) ? (source_a ^ source_b)                                                :
+                              (func == `FUNC_NOR) ? (source_a ^~ source_b)                                               :
                               (func == `FUNC_LUI) ? (source_b)                                                           :
                               (func == `FUNC_SLL) ? (source_a << source_b)                                               :
                               (func == `FUNC_SRL) ? (source_a >> source_b)                                               :
@@ -61,7 +61,7 @@ module sglalu(
                                                 
                               
     assign ov = (func == `FUNC_ADD && oper == `OPER_ALUS) ?
-                  (((~source_a[31] && ~source_b[31]  && add_result[31]) | (source_a[31] && source_b[31] && ~add_result[31])) ? 1'b1 : 1'b0) :
+                  (((~source_a[31] && ~source_b[31] && add_result[31]) | (source_a[31] && source_b[31]  && ~add_result[31])) ? 1'b1 : 1'b0) :
                 (func == `FUNC_SUB && oper == `OPER_ALUS) ?
-                  (((~source_a[31] && source_b[31] && add_result) | (source_a[31] && ~source_b[31] && ~add_result)) ? 1'b1 : 1'b0) : 1'b0;
+                  (((~source_a[31] && source_b[31]  && add_result[31]) | (source_a[31] && ~source_b[31] && ~add_result[31])) ? 1'b1 : 1'b0) : 1'b0;
 endmodule
