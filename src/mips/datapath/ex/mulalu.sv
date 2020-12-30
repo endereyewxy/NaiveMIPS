@@ -38,6 +38,8 @@ module mulalu(
     
     logic       ready;
     logic [5:0] count;
+    logic       divng;
+    logic       modng;
     
     assign alu_stall = ~ready & (is_mul | is_div);
     
@@ -46,6 +48,7 @@ module mulalu(
             state <= NORM;
             hi    <= 32'h0;
             lo    <= 32'h0;
+            ready <= 1'b0 ;
         end else if (is_mul) begin
             
             case (state)
@@ -75,6 +78,7 @@ module mulalu(
                 DONE:
                     if (~reg_stall) begin
                         state <= NORM;
+                        ready <= 1'b0;
                     end
                 default:;
             endcase
@@ -88,6 +92,8 @@ module mulalu(
                         {hi, lo} <= 64'h0;
                         ready    <= 1'b0;
                         count    <= 6'd32;
+                        divng    <= sign & (source_a[31] ^ source_b[31]);
+                        modng    <=         source_a[31];
                         if (sign & source_a[31])
                             number_a <= {32'h0, ~source_a + 1};
                         else
@@ -101,13 +107,14 @@ module mulalu(
                     if (count == 0) begin
                         state <= DONE;
                         ready <= 1'b1;
-                        if (sign & (source_a[31] ^ source_b[31])) begin
-                            hi <= ~number_a[63:32] + 1;
+                        if (divng)
                             lo <= ~number_a[31:0] + 1;
-                        end else begin
-                            hi <=  number_a[63:32];
+                        else
                             lo <=  number_a[31:0];
-                        end
+                        if (sign & (modng ^ number_a[63]))
+                            hi <= ~number_a[63:32] + 1;
+                        else
+                            hi <=  number_a[63:32];
                     end else begin
                         if ({number_a[62:0], 1'b0} >= number_b)
                             number_a <= {number_a[62:0], 1'b0} - number_b + 1;
@@ -118,6 +125,7 @@ module mulalu(
                 DONE:
                     if (~reg_stall) begin
                         state <= NORM;
+                        ready <= 1'b0;
                     end
                 default:;
             endcase

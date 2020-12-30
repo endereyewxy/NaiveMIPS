@@ -152,7 +152,7 @@ module decode(
     assign jal = f_oper == 6'b000011;
     assign bal = f_oper == 6'b000001 & inst[20];
     
-    assign rd_regf = jar ? (inst[15:11] == 5'h0 ? 5'd31 : 0) : (jal | bal) ? 5'd31 : rd_reg_;
+    assign rd_regf = jar ? (inst[15:11] == 5'h0 ? 5'd31 : inst[15:11]) : (jal | bal) ? 5'd31 : rd_reg_;
     
     assign sy = oper == `OPER_SYSCALL;
     assign bp = oper == `OPER_BREAK;
