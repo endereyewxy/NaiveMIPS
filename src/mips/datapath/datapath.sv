@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 `include "defines.vh"
 
+import includes::*;
+
 module datapath(
     input       logic         clk       ,
     input       logic         rst       ,
@@ -28,37 +30,37 @@ module datapath(
     
     // IF
     
-    logic `W_ADDR if_pc         ;
-    logic         if_slot       ;
+    logic `W_ADDR if_pc  ;
+    logic         if_slot;
     
     // ID
     
-    logic `W_TYPE id_ityp           ;
-    logic `W_FUNC id_func           ;
-    logic `W_DATA id_imme           ;
-    logic `W_REGF id_rs_regf        ;
-    logic `W_REGF id_rt_regf        ;
-    logic         id_branch         ;
-    logic `W_ADDR id_branch_addr    ;
-    logic         id_sy             ;
-    logic         id_bp             ;
-    logic         id_ri             ;
-    logic         id_er             ;
-    pipeinfo      id_pipeinfo       ;
+    logic `W_TYPE id_ityp       ;
+    logic `W_FUNC id_func       ;
+    logic `W_DATA id_imme       ;
+    logic `W_REGF id_rs_regf    ;
+    logic `W_REGF id_rt_regf    ;
+    logic         id_branch     ;
+    logic `W_ADDR id_branch_addr;
+    logic         id_sy         ;
+    logic         id_bp         ;
+    logic         id_ri         ;
+    logic         id_er         ;
+    pipeinfo      id_pipeinfo   ;
     
     // EX
     
-    logic         ex_alu_stall      ;
-    logic `W_TYPE ex_ityp           ;
-    logic `W_FUNC ex_func           ;
-    logic `W_DATA ex_imme           ;
-    logic `W_REGF ex_rs_regf        ;
-    logic `W_REGF ex_rt_regf        ;
-    logic `W_DATA ex_rs_data        ;
-    logic `W_DATA ex_rt_data        ;
-    logic `W_DATA ex_result         ;
-    pipeinfo      ex_pipeinfo       ;
-    exe_error     ex_exec_error     ;
+    logic         ex_alu_stall ;
+    logic `W_TYPE ex_ityp      ;
+    logic `W_FUNC ex_func      ;
+    logic `W_DATA ex_imme      ;
+    logic `W_REGF ex_rs_regf   ;
+    logic `W_REGF ex_rt_regf   ;
+    logic `W_DATA ex_rs_data   ;
+    logic `W_DATA ex_rt_data   ;
+    logic `W_DATA ex_result    ;
+    pipeinfo      ex_pipeinfo  ;
+    exe_error     ex_exec_error;
     
     // MM
     

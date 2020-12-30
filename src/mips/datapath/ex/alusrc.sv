@@ -3,7 +3,6 @@
 
 module alusrc(
     input  logic `W_TYPE ityp,
-    input  logic `W_OPER oper,
     input  logic `W_FUNC func,
     input  logic `W_DATA imme,
     input  logic         forward_rs,
@@ -13,10 +12,9 @@ module alusrc(
     input  logic `W_DATA rs_data,
     input  logic `W_DATA rt_data,
     output logic `W_DATA source_a,
-    output logic `W_DATA source_b
-    );
-           logic `W_DATA rs;
-           logic `W_DATA rt;
+    output logic `W_DATA source_b);
+   logic `W_DATA rs;
+   logic `W_DATA rt;
     assign rs = forward_rs ? forward_rs_data : rs_data;
     assign rt = forward_rt ? forward_rt_data : rt_data;
 // source_a 为第一个操作数 、 source_b为第二个操作数

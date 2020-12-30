@@ -37,7 +37,6 @@ module ex(
     
     alusrc alusrc_(
         .ityp           (ityp           ),
-        .oper           (oper           ),
         .func           (func           ),
         .imme           (imme           ),
         .forward_rs     (forward_rs     ),

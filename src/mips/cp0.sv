@@ -1,38 +1,38 @@
 `timescale 1ns/1ps
 `include "defines.vh"
 
-module cpo(
-    input        logic         clk       ,
-    input        logic         rst       ,
-    regf_r.slave               rt        ,
-    regf_w.slave               rd        ,
-    input        reg_error     cp0w      ,
-    output       logic `W_INTV intr_vect ,
-    output       logic `W_ADDR er_epc    );
+import includes::*;
+
+module cp0(
+    input        logic         clk      ,
+    input        logic         rst      ,
+    regf_r.slave               rt       ,
+    regf_w.slave               rd       ,
+    input        reg_error     cp0w     ,
+    input        logic `W_HINT hard_intr,
+    output       logic `W_INTV intr_vect,
+    output       logic `W_ADDR er_epc   );
     
     reg `W_DATA [31:0] regfile;
-    
-    logic `W_DATA BadVAddr;
-    logic `W_DATA Status  ;
-    logic `W_DATA Cause   ;
-    logic `W_DATA EPC     ;
     
     always @(posedge clk) begin
         if (rst) begin
             regfile <= 0;
         end else if (cp0w.we) begin
-            Cause   [31 ] <= cp0w.bd ;
-            Status  [1  ] <= cp0w.exl;
-            Cause   [6:2] <= cp0w.exc;
-            EPC           <= cp0w.epc;
-            BadVAddr      <= cp0w.bva;
+            regfile[13][31 ] <= cp0w.bd ;
+            regfile[12][1  ] <= cp0w.exl;
+            regfile[13][6:2] <= cp0w.exc;
+            regfile[14]      <= cp0w.epc;
+            regfile[ 8]      <= cp0w.bva;
         end else if (rd.regf != 0) begin
             regfile[rd.regf] <= rd.data;
         end
     end
     
-    assign intr_vect = (Cause[15:8] & Status[15:8]) & {8{Status[1]}};
-    assign er_epc    = EPC;
+    always @(posedge clk) regfile[13][15:10] <= hard_intr;
+    
+    assign intr_vect = (regfile[13][15:8] & regfile[12][15:8]) & {8{regfile[12][1]}};
+    assign er_epc    =  regfile[14];
     
     assign rt.data = regfile[rt.regf];
     

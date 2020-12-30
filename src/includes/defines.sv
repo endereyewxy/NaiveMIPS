@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 `include "defines.vh"
 
+package includes;
+
 typedef struct packed {
     logic         adel;
     logic         ades;
@@ -26,9 +28,16 @@ typedef struct packed {
     logic `W_ADDR bva;
 } reg_error; // 错误处理向CP0寄存器输出的信息
 
-interface regf_r(
-    logic `W_REGF regf,
-    logic `W_DATA data);
+endpackage
+
+interface regf_r(input logic clk);
+    logic `W_REGF regf;
+    logic `W_DATA data;
+    
+    clocking cb @(posedge clk);
+        input regf;
+        input data;
+    endclocking
     
     modport master(
         output regf,
@@ -40,9 +49,14 @@ interface regf_r(
     
 endinterface
 
-interface regf_w(
-    logic `W_REGF regf,
-    logic `W_DATA data);
+interface regf_w(input logic clk);
+    logic `W_REGF regf;
+    logic `W_DATA data;
+    
+    clocking cb @(posedge clk);
+        input regf;
+        input data;
+    endclocking
     
     modport master(
         output regf,

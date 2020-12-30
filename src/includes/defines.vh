@@ -6,6 +6,7 @@
 `define W_FUNC [3 :0]
 `define W_EXCC [4 :0]
 `define W_INTV [7 :0]
+`define W_HINT [5 :0]
 
 `define TYPE_R 2'b00
 `define TYPE_I 2'b01
