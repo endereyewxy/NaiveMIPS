@@ -4,7 +4,6 @@
 module forward(
     input  logic `W_OPER oper_id           ,
     input  logic `W_OPER oper_ex           ,
-    input  logic `W_OPER oper_mm           ,
     input  logic `W_REGF from_ex_regf      ,
     input  logic `W_DATA from_ex_data      ,
     input  logic `W_REGF from_mm_regf      ,

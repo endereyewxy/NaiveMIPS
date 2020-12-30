@@ -2,27 +2,26 @@
 `include "defines.vh"
 
 module sglalu(
-   input  logic `W_OPER oper,
-   input  logic `W_FUNC func,
-   input  logic `W_DATA cp0_rt_data,
-   output logic `W_DATA cp0_rd_data,
-   input  logic `W_DATA source_a,
-   input  logic `W_DATA source_b,
-   output logic `W_DATA result,
-   output logic         mulalu_sign,
-   output logic `W_FUNC mulalu_func,
-   input  logic `W_DATA hi,
-   output logic         hi_write,
+   input  logic `W_OPER oper         ,
+   input  logic `W_FUNC func         ,
+   input  logic `W_DATA cp0_rt_data  ,
+   output logic `W_DATA cp0_rd_data  ,
+   input  logic `W_DATA source_a     ,
+   input  logic `W_DATA source_b     ,
+   output logic `W_DATA result       ,
+   output logic         mulalu_sign  ,
+   output logic `W_FUNC mulalu_func  ,
+   input  logic `W_DATA hi           ,
+   output logic         hi_write     ,
    output logic `W_DATA hi_write_data,
-   input  logic `W_DATA lo,
-   output logic         lo_write,
+   input  logic `W_DATA lo           ,
+   output logic         lo_write     ,
    output logic `W_DATA lo_write_data,
-   output logic         ov
-    );
-          logic `W_DATA add_result;
-          logic `W_DATA sub_result;
-          logic `W_DATA slt_result;
+   output logic         ov          );
 
+    logic `W_DATA add_result;
+    logic `W_DATA sub_result;
+    logic `W_DATA slt_result;
 
     assign add_result      = source_a + source_b;
     assign sub_result      = source_a - source_b;
@@ -57,10 +56,11 @@ module sglalu(
                               (func == `FUNC_SLT) ? 
                                     ((oper == `OPER_ALUS)   ? (slt_result)    :                            
                                      ((source_a < source_b) ? {31'b0,1'b1} : 32'b0))                                     : cp0_rt_data;
-                                                
-                              
+
     assign ov = (func == `FUNC_ADD && oper == `OPER_ALUS) ?
                   (((~source_a[31] && ~source_b[31]  && add_result[31]) | (source_a[31] && source_b[31] && ~add_result[31])) ? 1'b1 : 1'b0) :
                 (func == `FUNC_SUB && oper == `OPER_ALUS) ?
                   (((~source_a[31] && source_b[31] && add_result) | (source_a[31] && ~source_b[31] && ~add_result)) ? 1'b1 : 1'b0) : 1'b0;
+
 endmodule
+
