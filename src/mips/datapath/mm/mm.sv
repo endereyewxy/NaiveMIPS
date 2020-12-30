@@ -24,7 +24,7 @@ module mm(
         .ibus       (ibus_error ),
         .dbus       (dbus_error ),
         .exec       (exec_error ),
-        .cp0        (cp0w_error ),
+        .cp0w       (cp0w_error ),
         .except     (except     ),
         .except_addr(except_addr));
     

@@ -1,13 +1,13 @@
 `timescale 1ns/1ps
 `include "defines.vh"
 
-module pipeline #(parameter type T = logic `W_DATA) (
-    input  logic clk   ,
-    input  logic rst   ,
-    input  logic stall ,
-    input  logic flush ,
-    input  T     data_i,
-    output T     data_o);
+module pipeline #(parameter W = 32) (
+    input  logic           clk   ,
+    input  logic           rst   ,
+    input  logic           stall ,
+    input  logic           flush ,
+    input  logic [W - 1:0] data_i,
+    output logic [W - 1:0] data_o);
     
     always @(posedge clk) begin
         if (rst | flush)

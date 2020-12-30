@@ -7,7 +7,7 @@ module regsrc(
     input       logic `W_DATA rd_data_a   ,
     input       logic `W_DATA rd_data_b   ,
     input       logic `W_ADDR pc          ,
-    sram.master               rd          );
+    regf_w.master             rd          );
 
     assign rd.data = `IS_OPER_JB(oper) ? pc        :
                      `IS_OPER_MM(oper) ? rd_data_b : rd_data_a;

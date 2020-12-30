@@ -15,7 +15,7 @@ module datapath(
     regf_w.master             cp0_rd    ,  // EX
     regf_r.master             rs        ,  // ID
     regf_r.master             rt        ,  // ID
-    regf.w.master             rd        ); // WB
+    regf_w.master             rd        ); // WB
     
     typedef struct packed {
         logic         slot   ;
@@ -33,8 +33,6 @@ module datapath(
     
     // ID
     
-    logic `W_DATA id_rs_data        ;
-    logic `W_DATA id_rt_data        ;
     logic `W_TYPE id_ityp           ;
     logic `W_FUNC id_func           ;
     logic `W_DATA id_imme           ;
@@ -103,7 +101,7 @@ module datapath(
     
     // 流水线间寄存器
     
-    pipeline if_id_(
+    pipeline #(33) if_id_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_if_id_stall),
@@ -112,16 +110,16 @@ module datapath(
         .data_i({if_pc         , if_slot         }),
         .data_o({id_pipeinfo.pc, id_pipeinfo.slot}));
     
-    pipeline id_ex_(
+    pipeline #(199) id_ex_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_id_ex_stall),
         .flush(c_id_ex_flush),
         
-        .data_i({id_ityp, id_func, id_imme, id_rs_regf, ex_rt_regf, id_rs_data, id_rt_data, id_pipeinfo, intr_vect              , id_sy           , id_bp           , id_ri           , id_er           , er_epc              }),
+        .data_i({id_ityp, id_func, id_imme, id_rs_regf, ex_rt_regf, rs.data   , rt.data   , id_pipeinfo, intr_vect              , id_sy           , id_bp           , id_ri           , id_er           , er_epc              }),
         .data_o({ex_ityp, ex_func, ex_imme, ex_rs_regf, ex_rt_regf, ex_rs_data, ex_rt_data, ex_pipeinfo, ex_exec_error.intr_vect, ex_exec_error.sy, ex_exec_error.bp, ex_exec_error.ri, ex_exec_error.er, ex_exec_error.er_epc}));
     
-    pipeline ex_mm_(
+    pipeline #(152) ex_mm_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_ex_mm_stall),
@@ -130,7 +128,7 @@ module datapath(
         .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_rt_data    }),
         .data_o({mm_pipeinfo, mm_exec_error, mm_source_addr, mm_source_data}));
     
-    pipeline mm_wb_(
+    pipeline #(75) mm_wb_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_mm_wb_stall),
@@ -238,7 +236,7 @@ module datapath(
         .oper     (wb_pipeinfo.oper   ),
         .rd_regf  (wb_pipeinfo.rd_regf),
         .rd_data_a(wb_rd_data_a       ),
-        .rd_data_b(dbus.data_r        ),
+        .rd_data_b(dbus_sram.data_r   ),
         .pc       (wb_pipeinfo.pc     ),
         .rd       (rd                 ));
     
@@ -259,14 +257,13 @@ module datapath(
         .mm_wb_stall(c_mm_wb_stall  ),
         .mm_wb_flush(c_mm_wb_flush  ),
         .pc_stall   (c_pc_stall     ),
-        .pc_flush   (c_pc_stall     ));
+        .pc_flush   (c_pc_flush     ));
     
     // forward
     
     forward forward_(
         .oper_id           (id_pipeinfo.oper    ),
         .oper_ex           (ex_pipeinfo.oper    ),
-        .oper_mm           (mm_pipeinfo.oper    ),
         .from_ex_regf      (ex_pipeinfo.rd_regf ),
         .from_ex_data      (ex_result           ),
         .from_mm_regf      (mm_pipeinfo.rd_regf ),
