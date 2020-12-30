@@ -51,17 +51,18 @@ module datapath(
     
     // EX
     
-    logic         ex_alu_stall ;
-    logic `W_TYPE ex_ityp      ;
-    logic `W_FUNC ex_func      ;
-    logic `W_DATA ex_imme      ;
-    logic `W_REGF ex_rs_regf   ;
-    logic `W_REGF ex_rt_regf   ;
-    logic `W_DATA ex_rs_data   ;
-    logic `W_DATA ex_rt_data   ;
-    logic `W_DATA ex_result    ;
-    pipeinfo      ex_pipeinfo  ;
-    exe_error     ex_exec_error;
+    logic         ex_alu_stall  ;
+    logic `W_TYPE ex_ityp       ;
+    logic `W_FUNC ex_func       ;
+    logic `W_DATA ex_imme       ;
+    logic `W_REGF ex_rs_regf    ;
+    logic `W_REGF ex_rt_regf    ;
+    logic `W_DATA ex_rs_data    ;
+    logic `W_DATA ex_rt_data    ;
+    logic `W_DATA ex_result     ;
+    logic `W_DATA ex_source_data;
+    pipeinfo      ex_pipeinfo   ;
+    exe_error     ex_exec_error ;
     
     // MM
     
@@ -128,7 +129,7 @@ module datapath(
         .stall(c_ex_mm_stall),
         .flush(c_ex_mm_flush),
         
-        .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_rt_data    }),
+        .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_source_data}),
         .data_o({mm_pipeinfo, mm_exec_error, mm_source_addr, mm_source_data}));
     
     pipeline #(75) mm_wb_(
@@ -214,7 +215,8 @@ module datapath(
         .cp0_rt_data    (cp0_rt.data         ),
         .cp0_rd_data    (cp0_rd.data         ),
         .result         (ex_result           ),
-        .ov             (ex_exec_error.ov    ));
+        .ov             (ex_exec_error.ov    ),
+        .source_data    (ex_source_data      ));
     
     assign cp0_rt.regf = ex_rt_regf;
     assign cp0_rd.regf = `IS_OPER_C0(ex_pipeinfo.oper) ? ex_pipeinfo.rd_regf : 0;

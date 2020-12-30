@@ -19,7 +19,8 @@ module ex(
     input  logic `W_DATA cp0_rt_data    ,
     output logic `W_DATA cp0_rd_data    ,
     output logic `W_DATA result         ,
-    output logic         ov             );
+    output logic         ov             ,
+    output logic `W_DATA source_data    );
     
     logic `W_DATA source_a;
     logic `W_DATA source_b;
@@ -46,7 +47,8 @@ module ex(
         .rs_data        (rs_data        ),
         .rt_data        (rt_data        ),
         .source_a       (source_a       ),
-        .source_b       (source_b       ));
+        .source_b       (source_b       ),
+        .source_data    (source_data    ));
     
     sglalu sglalu_(
         .oper         (oper       ),
