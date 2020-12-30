@@ -34,7 +34,12 @@ module cp0(
     assign intr_vect = (regfile[13][15:8] & regfile[12][15:8]) & {8{regfile[12][1]}};
     assign er_epc    =  regfile[14];
     
-    assign rt.data = regfile[rt.regf];
+    assign rt.data =
+            (cp0w.we & rt.regf ==  8          ) ? cp0w.bva                                                 :
+            (cp0w.we & rt.regf == 14          ) ? cp0w.epc                                                 :
+            (cp0w.we & rt.regf == 12          ) ? {regfile[12][31:2], cp0w.exl, regfile[12][0]}            :
+            (cp0w.we & rt.regf == 13          ) ? {cp0w.bd, regfile[13][30:7], cp0w.exc, regfile[13][1:0]} :
+            (rt.regf == rd.regf & rd.regf != 0) ? rd.data                                                  : regfile[rt.regf];
     
 endmodule
 

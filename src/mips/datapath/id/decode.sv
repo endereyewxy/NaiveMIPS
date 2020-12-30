@@ -126,9 +126,12 @@ module decode(
                       oper   == `OPER_MTC0 |
                       oper   == `OPER_MFC0 ) ? 0 : inst[25:21];
     // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
-    assign rt_regf = (ityp   == `TYPE_J    |
+    assign rt_regf = (oper   == `OPER_BEQ  |
+                      oper   == `OPER_BNE  ) ?     inst[20:16] :
+                     (ityp   == `TYPE_J    |
                       ityp   == `TYPE_I    ) ? 0 : inst[20:16];
-    assign rd_reg_ = `IS_OPER_JB(oper)       ? 0               :
+    assign rd_reg_ = (`IS_OPER_JB(oper)    |
+                      `IS_OPER_MM(oper)    ) ? 0               :
                      (ityp   == `TYPE_I    ) ?     inst[20:16] :
                      (ityp   == `TYPE_J    ) ? 0 : inst[15:11];
     
@@ -138,7 +141,7 @@ module decode(
     assign jal = f_oper == 6'b000011;
     assign bal = f_oper == 6'b000001 & inst[20];
     
-    assign rd_regf = jar ? (inst[15:11] == 5'h0 ? 5'd31 : 0) : (jal & bal) ? 5'd31 : rd_reg_;
+    assign rd_regf = jar ? (inst[15:11] == 5'h0 ? 5'd31 : 0) : (jal | bal) ? 5'd31 : rd_reg_;
     
     assign sy = oper == `OPER_SYSCALL;
     assign bp = oper == `OPER_BREAK;

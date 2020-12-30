@@ -18,7 +18,7 @@ module gpr(
         end
     end
     
-    assign rs.data = regfile[rs.regf];
-    assign rt.data = regfile[rt.regf];
+    assign rs.data = (rs.regf == rd.regf & rd.regf != 0) ? rd.data : regfile[rs.regf];
+    assign rt.data = (rt.regf == rd.regf & rd.regf != 0) ? rd.data : regfile[rt.regf];
     
 endmodule

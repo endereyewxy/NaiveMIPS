@@ -119,7 +119,7 @@ module datapath(
         .stall(c_id_ex_stall),
         .flush(c_id_ex_flush),
         
-        .data_i({id_ityp, id_func, id_imme, id_rs_regf, ex_rt_regf, rs.data   , rt.data   , id_pipeinfo, intr_vect              , id_sy           , id_bp           , id_ri           , id_er           , er_epc              }),
+        .data_i({id_ityp, id_func, id_imme, id_rs_regf, id_rt_regf, rs.data   , rt.data   , id_pipeinfo, intr_vect              , id_sy           , id_bp           , id_ri           , id_er           , er_epc              }),
         .data_o({ex_ityp, ex_func, ex_imme, ex_rs_regf, ex_rt_regf, ex_rs_data, ex_rt_data, ex_pipeinfo, ex_exec_error.intr_vect, ex_exec_error.sy, ex_exec_error.bp, ex_exec_error.ri, ex_exec_error.er, ex_exec_error.er_epc}));
     
     pipeline #(152) ex_mm_(

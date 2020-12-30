@@ -17,7 +17,7 @@ module branch(
     assign off = {imme[29:0], 2'b00};
     
     assign {branch, branch_addr} =
-        (oper == `OPER_J ) ? {1'b1, rpc[31:28], imme[27:2], 2'b00} :
+        (oper == `OPER_J ) ? {1'b1, rpc[31:28], imme[25:0], 2'b00} :
         (oper == `OPER_JR) ? {1'b1, source_a}                      :
         
         (oper == `OPER_BEQ & source_a == source_b) ? {1'b1, rpc + off} :

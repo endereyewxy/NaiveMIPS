@@ -9,7 +9,7 @@ module regsrc(
     input       logic `W_ADDR pc          ,
     regf_w.master             rd          );
 
-    assign rd.data = `IS_OPER_JB(oper) ? pc        :
+    assign rd.data = `IS_OPER_JB(oper) ? pc + 8    :
                      `IS_OPER_MM(oper) ? rd_data_b : rd_data_a;
     assign rd.regf = `IS_OPER_C0(oper) ? 0         : rd_regf  ;
     
