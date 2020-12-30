@@ -11,7 +11,7 @@ module regsrc(
 
     assign rd.data = `IS_OPER_JB(oper) ? pc        :
                      `IS_OPER_MM(oper) ? rd_data_b : rd_data_a;
-    assign rd.regf = rd_regf;
+    assign rd.regf = `IS_OPER_C0(oper) ? 0         : rd_regf  ;
     
 endmodule
 
