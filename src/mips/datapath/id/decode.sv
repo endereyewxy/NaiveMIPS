@@ -128,10 +128,16 @@ module decode(
     // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
     assign rt_regf = (oper   == `OPER_BEQ  |
                       oper   == `OPER_BNE  ) ?     inst[20:16] :
+                     (func   == `FUNC_SLL  |
+                      func   == `FUNC_SRL  |
+                      func   == `FUNC_SRA  ) ?     inst[20:16] :
                      (ityp   == `TYPE_J    |
                       ityp   == `TYPE_I    ) ? 0 : inst[20:16];
     assign rd_reg_ = (`IS_OPER_JB(oper)    |
                       `IS_OPER_MM(oper)    ) ? 0               :
+                     (func   == `FUNC_SLL  |
+                      func   == `FUNC_SRL  |
+                      func   == `FUNC_SRA  ) ?     inst[15:11] :
                      (ityp   == `TYPE_I    ) ?     inst[20:16] :
                      (ityp   == `TYPE_J    ) ? 0 : inst[15:11];
     
