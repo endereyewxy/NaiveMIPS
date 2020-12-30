@@ -131,10 +131,15 @@ module decode(
                      (func   == `FUNC_SLL  |
                       func   == `FUNC_SRL  |
                       func   == `FUNC_SRA  ) ?     inst[20:16] :
+                     (oper   == `OPER_SB   |
+                      oper   == `OPER_SH   |
+                      oper   == `OPER_SW   ) ?     inst[20:16] :
                      (ityp   == `TYPE_J    |
                       ityp   == `TYPE_I    ) ? 0 : inst[20:16];
-    assign rd_reg_ = (`IS_OPER_JB(oper)    |
-                      `IS_OPER_MM(oper)    ) ? 0               :
+    assign rd_reg_ =  `IS_OPER_JB(oper)      ? 0               :
+                     (oper   == `OPER_SB   |
+                      oper   == `OPER_SH   |
+                      oper   == `OPER_SW   ) ? 0               :
                      (func   == `FUNC_SLL  |
                       func   == `FUNC_SRL  |
                       func   == `FUNC_SRA  ) ?     inst[15:11] :
