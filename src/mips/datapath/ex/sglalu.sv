@@ -27,9 +27,9 @@ module sglalu(
     assign sub_result      = source_a - source_b;
 //     这里slt_result表示的是有符号情况下
     assign slt_result      = (source_a[31] & ~source_b[31] )  ? {31'b0,1'b1}   :
-                             (source_a[31] & source_b[31])    ? ((source_a[30:0] > source_b[30:0]) ? {31'b0,1'b1} : 32'b0)            :
+                             (source_a[31] & source_b[31])    ? ((source_a < source_b) ? {31'b0,1'b1} : 32'b0)            :
                              (~source_a[31] & source_b[31] )  ? 32'b0          :
-                             (source_a[30:0] < source_b[30:0]) ? {31'b0,1'b1}  : 32'b0;
+                             (source_a < source_b) ? {31'b0,1'b1}  : 32'b0;
 
     assign cp0_rd_data     =  source_a;
     assign mulalu_func     =  (func == `FUNC_MUL | func == `FUNC_DIV) ? func : 5'b00000;
