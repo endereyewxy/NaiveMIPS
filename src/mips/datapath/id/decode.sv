@@ -114,10 +114,10 @@ module decode(
         (ityp == `TYPE_I) ? (
             (func == `FUNC_SLL |
              func == `FUNC_SRL |
-             func == `FUNC_SRA ) ? {27'h0         , inst[10:6]} :    // 特殊处理
-            (oper == `OPER_ALUU) ? {16'h0         , inst[15:6]} :    // 无符号扩展
-                                   {{16{inst[15]}}, inst[15:0]}):    // 有符号扩展
-        (ityp == `TYPE_J)        ? {6'h0          , inst[25:0]} : 0; // 皆可
+             func == `FUNC_SRA )     ? {27'h0         , inst[10:6]} :    // 特殊处理
+            (f_oper[5:2] == 4'b0011) ? {16'h0         , inst[15:0]} :    // 无符号扩展
+                                       {{16{inst[15]}}, inst[15:0]}):    // 有符号扩展
+        (ityp == `TYPE_J)            ? {6'h0          , inst[25:0]} : 0; // 皆可
     
     logic `W_REGF rd_reg_;
     

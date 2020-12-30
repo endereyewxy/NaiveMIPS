@@ -17,7 +17,8 @@ module datapath(
     regf_w.master             cp0_rd    ,  // EX
     regf_r.master             rs        ,  // ID
     regf_r.master             rt        ,  // ID
-    regf_w.master             rd        ); // WB
+    regf_w.master             rd        ,  // WB
+    output      debuginfo     debug     );
     
     typedef struct packed {
         logic         slot   ;
@@ -136,8 +137,8 @@ module datapath(
         .stall(c_mm_wb_stall),
         .flush(c_mm_wb_flush),
         
-        .data_i({mm_pipeinfo, mm_source_data}),
-        .data_o({wb_pipeinfo, wb_rd_data_a  }));
+        .data_i({mm_pipeinfo, dbus_sram.data_w}),
+        .data_o({wb_pipeinfo, wb_rd_data_a    }));
     
     // 模块实例化
     
@@ -159,9 +160,14 @@ module datapath(
     
     // ID
     
+    // 防止指令为X
+    logic `W_DATA no_x_inst;
+    
+    assign no_x_inst = ibus_sram.data_r[0] === 1'bx ? 32'h0 : ibus_sram.data_r;
+    
     id id_(
         .pc             (id_pipeinfo.pc      ),
-        .inst           (ibus_sram.data_r    ),
+        .inst           (no_x_inst           ),
         .rs_data        (rs.data             ),
         .rt_data        (rt.data             ),
         .forward_rs     (f_forward_id_rs     ),
@@ -285,6 +291,8 @@ module datapath(
         .forward_ex_rs_data(f_forward_ex_rs_data),
         .forward_ex_rt     (f_forward_ex_rt     ),
         .forward_ex_rt_data(f_forward_ex_rt_data));
+    
+    assign debug = {wb_pipeinfo.pc, (rd.regf == 0) ? 4'b0000 : 4'b1111, rd.regf, rd.data};
     
 endmodule
 

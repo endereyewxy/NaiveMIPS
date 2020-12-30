@@ -12,7 +12,7 @@ module pipeline #(parameter W = 32) (
     always @(posedge clk) begin
         if (rst | flush)
             data_o <= 0;
-        else if (~stall)
+        else if (stall !== 1'b1)
             data_o <= data_i;
     end
     

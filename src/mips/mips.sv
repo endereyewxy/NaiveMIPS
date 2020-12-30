@@ -10,7 +10,8 @@ module mips(
     sram.master               ibus_sram ,
     sram.master               dbus_sram ,
     input       bus_error     ibus_error,
-    input       bus_error     dbus_error);
+    input       bus_error     dbus_error,
+    output      debuginfo     debug     );
     
     sram ibus_mmu(clk);
     sram dbus_mmu(clk);
@@ -66,7 +67,8 @@ module mips(
         .cp0_rd    (cp0_rd.master  ),
         .rs        (rs.master      ),
         .rt        (rt.master      ),
-        .rd        (rd.master      ));
+        .rd        (rd.master      ),
+        .debug     (debug          ));
     
 endmodule
 

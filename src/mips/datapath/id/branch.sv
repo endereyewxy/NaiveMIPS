@@ -11,21 +11,23 @@ module branch(
     output logic `W_ADDR branch_addr);
     
     logic `W_ADDR rpc;
+    logic `W_ADDR off;
     
     assign rpc = pc + 4;
+    assign off = {imme[29:0], 2'b00};
     
     assign {branch, branch_addr} =
         (oper == `OPER_J ) ? {1'b1, rpc[31:28], imme[27:2], 2'b00} :
         (oper == `OPER_JR) ? {1'b1, source_a}                      :
         
-        (oper == `OPER_BEQ & source_a == source_b) ? {1'b1, rpc + imme} :
-        (oper == `OPER_BNE & source_a != source_b) ? {1'b1, rpc + imme} :
+        (oper == `OPER_BEQ & source_a == source_b) ? {1'b1, rpc + off} :
+        (oper == `OPER_BNE & source_a != source_b) ? {1'b1, rpc + off} :
         
-        (oper == `OPER_BGEZ & ~source_a[31]) ? {1'b1, rpc + imme} :
-        (oper == `OPER_BLTZ &  source_a[31]) ? {1'b1, rpc + imme} :
+        (oper == `OPER_BGEZ & ~source_a[31]) ? {1'b1, rpc + off} :
+        (oper == `OPER_BLTZ &  source_a[31]) ? {1'b1, rpc + off} :
         
-        (oper == `OPER_BGTZ & (~source_a[31] & source_a != 0)) ? {1'b1, rpc + imme} :
-        (oper == `OPER_BLEZ & ( source_a[31] | source_a == 0)) ? {1'b1, rpc + imme} : 0;
+        (oper == `OPER_BGTZ & (~source_a[31] & source_a != 0)) ? {1'b1, rpc + off} :
+        (oper == `OPER_BLEZ & ( source_a[31] | source_a == 0)) ? {1'b1, rpc + off} : 0;
     
 endmodule
 

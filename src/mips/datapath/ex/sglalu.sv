@@ -48,7 +48,7 @@ module sglalu(
                               (func == `FUNC_OR)  ? (source_a | source_b)                                                :
                               (func == `FUNC_XOR) ? (source_a ^ source_b)                                                :
                               (func == `FUNC_NOR) ? (source_a ^~ source_b)                                               :
-                              (func == `FUNC_LUI) ? (source_b)                                                           :
+                              (func == `FUNC_LUI) ? ({source_b[15:0], 16'h0})                                            :
                               (func == `FUNC_SLL) ? (source_a << source_b)                                               :
                               (func == `FUNC_SRL) ? (source_a >> source_b)                                               :
                               (func == `FUNC_SRA) ? (({32{source_a[31]}} << (32'd32 - source_b)) | (source_a >> source_b)) :

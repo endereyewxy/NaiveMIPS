@@ -28,6 +28,13 @@ typedef struct packed {
     logic `W_ADDR bva;
 } reg_error; // 错误处理向CP0寄存器输出的信息
 
+typedef struct packed {
+    logic `W_DATA debug_wb_pc      ;
+    logic [3:0]   debug_wb_rf_wen  ;
+    logic `W_REGF debug_wb_rf_wnum ;
+    logic `W_DATA debug_wb_rf_wdata;
+} debuginfo;
+
 endpackage
 
 interface regf_r(input logic clk);

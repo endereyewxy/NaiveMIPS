@@ -56,8 +56,8 @@ module forward(
     logic id_ex;
     logic id_mm;
     
-    assign id_ex = from_ex_regf == into_id_rs | from_ex_regf == into_id_rt;
-    assign id_mm = from_mm_regf == into_id_rs | from_mm_regf == into_id_rt;
+    assign id_ex = from_ex_regf != 0 & (from_ex_regf == into_id_rs | from_ex_regf == into_id_rt);
+    assign id_mm = from_mm_regf != 0 & (from_mm_regf == into_id_rs | from_mm_regf == into_id_rt);
     
     assign stall =
         (id_ex & is_id_jb) |

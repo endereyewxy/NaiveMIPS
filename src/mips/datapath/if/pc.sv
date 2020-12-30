@@ -12,17 +12,12 @@ module pc(
     output logic         pc         ,
     output logic `W_ADDR pc_addr    );
     
-    always @(posedge clk)begin
-        if (rst | stall) begin
-            pc <= 1'b0;
-        end else begin
-            pc <= 1'b1;
-        end
-    end
+    
+    assign pc = ~(rst | stall);
     
     always @(posedge clk)begin
         if (rst) begin
-            pc_addr <= 32'h0;
+            pc_addr <= 32'hbfc00000;
         end else if (except) begin
             pc_addr <= except_addr;
         end else if (stall) begin
