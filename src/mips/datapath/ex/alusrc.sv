@@ -19,12 +19,11 @@ module alusrc(
     assign rt = forward_rt ? forward_rt_data : rt_data;
 // source_a 为第一个操作数 、 source_b为第二个操作数
 // R型指令 一般情况下 source_a = rs, source_b = rt.   特殊情况（sllv srlv srav）       ： source a = rt, source_b = rs.
-// I型指令 一般情况下 source_a = rt, source_b = imme. 特殊情况（addi addiu slti sltiu）: source_a = rs, source_b = imme
+// I型指令 一般情况下 source_a = rs, source_b = imme. 特殊情况（addi addiu slti sltiu）: source_a = rt, source_b = imme
 // J型指令 不处理，由一根线连接到regsrc
-    assign source_a = ityp == `TYPE_R ? ((func == `FUNC_SLL | func == `FUNC_SRL | func == `FUNC_SRA) ? rt : rs) :
-                      (ityp == `TYPE_I & (func == `FUNC_ADD | func == `FUNC_SLT)) ? rs :rt;
-                    
-    assign source_b = ityp == `TYPE_R ? ((func == `FUNC_SLL | func == `FUNC_SRL | func == `FUNC_SRA) ? rs : rt) : imme;
+    assign source_a =  ityp == `TYPE_R ? ((func == `FUNC_SLL | func == `FUNC_SRL | func == `FUNC_SRA)  ? rt : rs) :
+                      (ityp == `TYPE_I &  (func == `FUNC_SLL | func == `FUNC_SRL | func == `FUNC_SRA)) ? rt : rs;
+    assign source_b =  ityp == `TYPE_R ? ((func == `FUNC_SLL | func == `FUNC_SRL | func == `FUNC_SRA)  ? rs : rt) : imme;
                                              
     
 endmodule
