@@ -70,13 +70,15 @@ module datapath(
     logic `W_ADDR mm_except_addr;
     logic `W_ADDR mm_source_addr;
     logic `W_DATA mm_source_data;
+    logic [1:0]   mm_word_offset;
     pipeinfo      mm_pipeinfo   ;
     exe_error     mm_exec_error ;
     
     // WB
     
-    logic `W_DATA wb_rd_data_a;
-    pipeinfo      wb_pipeinfo ;
+    logic `W_DATA wb_rd_data_a  ;
+    logic [1:0]   wb_word_offset;
+    pipeinfo      wb_pipeinfo   ;
     
     // control
     
@@ -132,14 +134,14 @@ module datapath(
         .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_source_data}),
         .data_o({mm_pipeinfo, mm_exec_error, mm_source_addr, mm_source_data}));
     
-    pipeline #(75) mm_wb_(
+    pipeline #(77) mm_wb_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_mm_wb_stall),
         .flush(c_mm_wb_flush),
         
-        .data_i({mm_pipeinfo, dbus_sram.data_w}),
-        .data_o({wb_pipeinfo, wb_rd_data_a    }));
+        .data_i({mm_pipeinfo, dbus_sram.data_w, mm_word_offset}),
+        .data_o({wb_pipeinfo, wb_rd_data_a    , wb_word_offset}));
     
     // 模块实例化
     
@@ -238,17 +240,19 @@ module datapath(
         .dbus_en    (dbus_sram.en    ),
         .dbus_we    (dbus_sram.we    ),
         .dbus_addr  (dbus_sram.addr  ),
-        .dbus_data  (dbus_sram.data_w));
+        .dbus_data  (dbus_sram.data_w),
+        .word_offset(mm_word_offset  ));
     
     // WB
     
     wb wb_(
-        .oper     (wb_pipeinfo.oper   ),
-        .rd_regf  (wb_pipeinfo.rd_regf),
-        .rd_data_a(wb_rd_data_a       ),
-        .rd_data_b(dbus_sram.data_r   ),
-        .pc       (wb_pipeinfo.pc     ),
-        .rd       (rd                 ));
+        .oper       (wb_pipeinfo.oper   ),
+        .word_offset(wb_word_offset     ),
+        .rd_regf    (wb_pipeinfo.rd_regf),
+        .rd_data_a  (wb_rd_data_a       ),
+        .rd_data_b  (dbus_sram.data_r   ),
+        .pc         (wb_pipeinfo.pc     ),
+        .rd         (rd                 ));
     
     // control
     

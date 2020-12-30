@@ -16,7 +16,8 @@ module mm(
     output logic         dbus_en    ,
     output logic [3:0]   dbus_we    ,
     output logic `W_ADDR dbus_addr  ,
-    output logic `W_DATA dbus_data  );
+    output logic `W_DATA dbus_data  ,
+    output logic [1:0]   word_offset);
     
     except except_(
         .slot       (slot       ),
@@ -35,7 +36,8 @@ module mm(
         .dbus_en    (dbus_en    ),
         .dbus_we    (dbus_we    ),
         .dbus_addr  (dbus_addr  ),
-        .dbus_data  (dbus_data  ));
+        .dbus_data  (dbus_data  ),
+        .word_offset(word_offset));
     
 endmodule
 
