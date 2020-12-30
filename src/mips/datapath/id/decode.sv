@@ -102,9 +102,9 @@ module decode(
     
     assign ityp =
         (inst[31] | inst[29] | inst[28] | f_oper == 6'b000001) ? `TYPE_I :
-        (func == `FUNC_SLL     |
-         func == `FUNC_SRL     |
-         func == `FUNC_SRA     )                               ? `TYPE_I :
+        ((func == `FUNC_SLL     |
+          func == `FUNC_SRL     |
+          func == `FUNC_SRA     ) & ~inst[2])                  ? `TYPE_I :
         (oper == `OPER_J       |
          oper == `OPER_BREAK   |
          oper == `OPER_SYSCALL |
