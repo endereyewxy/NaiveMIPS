@@ -1,5 +1,4 @@
 `timescale 1ns/1ps
-`include "defines.vh"
 
 import includes::*;
 
@@ -15,20 +14,19 @@ module sbus_to_sram(
     
     logic [3:0] mask;
     
-    assign mask =
-        (sbus.size == 2'b00) ? (
-            (sbus.addr[1:0] == 2'b00) ? 4'b0001  :
-            (sbus.addr[1:0] == 2'b01) ? 4'b0010  :
-            (sbus.addr[1:0] == 2'b10) ? 4'b0100  :
-                                        4'b1000) :
-        (sbus.size == 2'b01) ? (
-            (sbus.addr[1:0] == 2'b00) ? 4'b0011  :
-            (sbus.addr[1:0] == 2'b10) ? 4'b1100  :
-                                        4'b0000) :
-        (sbus.size == 2'b10) ? (
-            (sbus.addr[1:0] == 2'b00) ? 4'b1111  :
-                                        4'b0000) :
-                                        4'b0000  ;
+    assign mask = (sbus.size == 2'b00) ? (
+                      (sbus.addr[1:0] == 2'b00) ? 4'b0001  :
+                      (sbus.addr[1:0] == 2'b01) ? 4'b0010  :
+                      (sbus.addr[1:0] == 2'b10) ? 4'b0100  :
+                                                  4'b1000) :
+                  (sbus.size == 2'b01) ? (
+                      (sbus.addr[1:0] == 2'b00) ? 4'b0011  :
+                      (sbus.addr[1:0] == 2'b10) ? 4'b1100  :
+                                                  4'b0000) :
+                  (sbus.size == 2'b10) ? (
+                      (sbus.addr[1:0] == 2'b00) ? 4'b1111  :
+                                                  4'b0000) :
+                                                  4'b0000  ;
     
     assign sram_en   =  sbus.en;
     assign sram_we   =  sbus.we ? mask : 0;
