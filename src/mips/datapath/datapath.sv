@@ -8,8 +8,8 @@ module datapath(
     input       logic         rst       ,
     input       logic `W_INTV intr_vect ,  // ID
     input       logic `W_ADDR er_epc    ,  // ID
-    sram.master               ibus_sram ,  // IF - ID
-    sram.master               dbus_sram ,  // MM - WB
+    sbus.master               ibus_sbus ,  // IF - ID
+    sbus.master               dbus_sbus ,  // MM - WB
     input       bus_error     ibus_error,  // IF
     input       bus_error     dbus_error,  // MM
     output      reg_error     cp0w_error,  // MM
@@ -71,15 +71,13 @@ module datapath(
     logic `W_ADDR mm_except_addr;
     logic `W_ADDR mm_source_addr;
     logic `W_DATA mm_source_data;
-    logic [1:0]   mm_word_offset;
     pipeinfo      mm_pipeinfo   ;
     exe_error     mm_exec_error ;
     
     // WB
     
-    logic `W_DATA wb_rd_data_a  ;
-    logic [1:0]   wb_word_offset;
-    pipeinfo      wb_pipeinfo   ;
+    logic `W_DATA wb_rd_data_a;
+    pipeinfo      wb_pipeinfo ;
     
     // control
     
@@ -152,7 +150,7 @@ module datapath(
         .stall(c_mm_wb_stall),
         .flush(c_mm_wb_flush),
         
-        .data_i({mm_pipeinfo, dbus_sram.data_w, mm_word_offset}),
+        .data_i({mm_pipeinfo, dbus_sbus.data_w, mm_word_offset}),
         .data_o({wb_pipeinfo, wb_rd_data_a    , wb_word_offset}));
     
     // 模块实例化
@@ -167,18 +165,19 @@ module datapath(
         .except_addr(mm_except_addr),
         .branch     (id_branch     ),
         .branch_addr(id_branch_addr),
-        .pc         (ibus_sram.en  ),
+        .pc         (ibus_sbus.en  ),
         .pc_addr    (if_pc         ));
     
-    assign ibus_sram.we   = 0;
-    assign ibus_sram.addr = if_pc;
+    assign ibus_sbus.we   = 0;
+    assign ibus_sbus.size = 2'b10;
+    assign ibus_sbus.addr = if_pc;
     
     // ID
     
     // 防止指令为X；刷新IF-ID时也刷新指令
     logic `W_DATA no_x_inst;
     
-    assign no_x_inst = (ibus_sram.data_r[0] === 1'bx | id_if_id_flush) ? 32'h0 : ibus_sram.data_r;
+    assign no_x_inst = (ibus_sbus.data_r[0] === 1'bx | id_if_id_flush) ? 32'h0 : ibus_sbus.data_r;
     
     id id_(
         .pc             (id_pipeinfo.pc      ),
@@ -250,28 +249,27 @@ module datapath(
         .except_addr(mm_except_addr  ),
         .source_addr(mm_source_addr  ),
         .source_data(mm_source_data  ),
-        .dbus_en    (dbus_sram.en    ),
-        .dbus_we    (dbus_sram.we    ),
-        .dbus_addr  (dbus_sram.addr  ),
-        .dbus_data  (dbus_sram.data_w),
-        .word_offset(mm_word_offset  ));
+        .dbus_en    (dbus_sbus.en    ),
+        .dbus_we    (dbus_sbus.we    ),
+        .dbus_size  (dbus_sbus.size  ),
+        .dbus_addr  (dbus_sbus.addr  ),
+        .dbus_data  (dbus_sbus.data_w));
     
     // WB
     
     wb wb_(
         .oper       (wb_pipeinfo.oper   ),
-        .word_offset(wb_word_offset     ),
         .rd_regf    (wb_pipeinfo.rd_regf),
         .rd_data_a  (wb_rd_data_a       ),
-        .rd_data_b  (dbus_sram.data_r   ),
+        .rd_data_b  (dbus_sbus.data_r   ),
         .pc         (wb_pipeinfo.pc     ),
         .rd         (rd                 ));
     
     // control
     
     control control_(
-        .ibus       (ibus_sram.stall),
-        .dbus       (dbus_sram.stall),
+        .ibus       (ibus_sbus.stall),
+        .dbus       (dbus_sbus.stall),
         .forward    (f_stall        ),
         .mulalu     (ex_alu_stall   ),
         .except     (mm_except      ),
@@ -294,7 +292,7 @@ module datapath(
         .from_ex_regf      (ex_pipeinfo.rd_regf ),
         .from_ex_data      (ex_result           ),
         .from_mm_regf      (mm_pipeinfo.rd_regf ),
-        .from_mm_data      (dbus_sram.data_w    ),
+        .from_mm_data      (dbus_sbus.data_w    ),
         .from_wb_regf      (wb_pipeinfo.rd_regf ),
         .from_wb_data      (rd.data             ),
         .into_id_rs        (id_rs_regf          ),

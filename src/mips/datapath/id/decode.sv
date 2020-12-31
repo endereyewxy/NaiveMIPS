@@ -97,18 +97,17 @@ module decode(
             (inst[25:21] == 5'b00100) ? {1'b1, `OPER_MTC0, `FUNC_AND} : // mtc0
             (inst[25:21] == 5'b00000) ? {1'b1, `OPER_MFC0, `FUNC_AND} : // mfc0
             (inst[25:21] == 5'b10000) ? {1'b1, `OPER_ERET, `FUNC_AND} : // eret
-            0) :
-        0;
+            0) : 0;
     
     assign ityp =
         (inst[31] | inst[29] | inst[28] | f_oper == 6'b000001) ? `TYPE_I :
         ((func == `FUNC_SLL     |
           func == `FUNC_SRL     |
           func == `FUNC_SRA     ) & ~inst[2])                  ? `TYPE_I :
-        (oper == `OPER_J       |
-         oper == `OPER_BREAK   |
-         oper == `OPER_SYSCALL |
-         oper == `OPER_ERET    )                               ? `TYPE_J : `TYPE_R;
+         (oper == `OPER_J       |
+          oper == `OPER_BREAK   |
+          oper == `OPER_SYSCALL |
+          oper == `OPER_ERET    )                              ? `TYPE_J : `TYPE_R;
     
     assign imme =
         (ityp == `TYPE_I) ? (
@@ -126,27 +125,27 @@ module decode(
                       oper   == `OPER_MTC0 |
                       oper   == `OPER_MFC0 ) ? 0 : inst[25:21];
     // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
-    assign rt_regf = (oper   == `OPER_BEQ  |
-                      oper   == `OPER_BNE  ) ?     inst[20:16] :
-                     (func   == `FUNC_SLL  |
-                      func   == `FUNC_SRL  |
-                      func   == `FUNC_SRA  ) ?     inst[20:16] :
-                     (oper   == `OPER_SB   |
-                      oper   == `OPER_SH   |
-                      oper   == `OPER_SW   ) ?     inst[20:16] :
-                     (oper   == `OPER_MFC0 ) ?     inst[15:11] :
-                     (ityp   == `TYPE_J    |
-                      ityp   == `TYPE_I    ) ? 0 : inst[20:16];
-    assign rd_reg_ =  `IS_OPER_JB(oper)      ? 0               :
-                     (oper   == `OPER_SB   |
-                      oper   == `OPER_SH   |
-                      oper   == `OPER_SW   ) ? 0               :
-                     (func   == `FUNC_SLL  |
-                      func   == `FUNC_SRL  |
-                      func   == `FUNC_SRA  ) ?     inst[15:11] :
-                     (ityp   == `TYPE_I    |
-                      oper   == `OPER_MFC0 ) ?     inst[20:16] :
-                     (ityp   == `TYPE_J    ) ? 0 : inst[15:11];
+    assign rt_regf = (oper   == `OPER_BEQ |
+                      oper   == `OPER_BNE |
+                      oper   == `OPER_SB  |
+                      oper   == `OPER_SH  |
+                      oper   == `OPER_SW  |
+                      func   == `FUNC_SLL |
+                      func   == `FUNC_SRL |
+                      func   == `FUNC_SRA ) ?     inst[20:16] :
+                     (oper   == `OPER_MFC0) ?     inst[15:11] :
+                     (ityp   == `TYPE_J   |
+                      ityp   == `TYPE_I   ) ? 0 : inst[20:16];
+    assign rd_reg_ =  `IS_OPER_JB(oper)     ? 0               :
+                     (oper   == `OPER_SB  |
+                      oper   == `OPER_SH  |
+                      oper   == `OPER_SW  ) ? 0               :
+                     (func   == `FUNC_SLL |
+                      func   == `FUNC_SRL |
+                      func   == `FUNC_SRA ) ?     inst[15:11] :
+                     (ityp   == `TYPE_I   |
+                      oper   == `OPER_MFC0) ?     inst[20:16] :
+                     (ityp   == `TYPE_J   ) ? 0 : inst[15:11];
     
     logic jar, jal, bal;
     

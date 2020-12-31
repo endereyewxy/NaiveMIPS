@@ -7,14 +7,14 @@ module mips(
     input       logic         clk       ,
     input       logic         rst       ,
     input       logic `W_HINT hard_intr ,
-    sram.master               ibus_sram ,
-    sram.master               dbus_sram ,
+    sbus.master               ibus_sbus ,
+    sbus.master               dbus_sbus ,
     input       bus_error     ibus_error,
     input       bus_error     dbus_error,
     output      debuginfo     debug     );
     
-    sram ibus_mmu(clk);
-    sram dbus_mmu(clk);
+    sbus ibus_mmu(clk);
+    sbus dbus_mmu(clk);
     
     regf_r cp0_rt(clk);
     regf_w cp0_rd(clk);
@@ -33,8 +33,8 @@ module mips(
     mmu mmu_(
         .ibus_v(ibus_mmu.slave),
         .dbus_v(dbus_mmu.slave),
-        .ibus_p(ibus_sram     ),
-        .dbus_p(dbus_sram     ));
+        .ibus_p(ibus_sbus     ),
+        .dbus_p(dbus_sbus     ));
     
     gpr gpr_(
         .clk(clk     ),
@@ -58,8 +58,8 @@ module mips(
         .rst       (rst            ),
         .intr_vect (intr_vect      ),
         .er_epc    (er_epc         ),
-        .ibus_sram (ibus_mmu.master),
-        .dbus_sram (dbus_mmu.master),
+        .ibus_sbus (ibus_mmu.master),
+        .dbus_sbus (dbus_mmu.master),
         .ibus_error(ibus_error     ),
         .dbus_error(dbus_error     ),
         .cp0w_error(cp0w           ),

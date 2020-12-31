@@ -75,9 +75,10 @@ interface regf_w(input logic clk);
     
 endinterface
 
-interface sram(input logic clk);
+interface sbus(input logic clk);
     logic         en    ;
-    logic [3:0]   we    ;
+    logic         we    ;
+    logic [1:0]   size  ;
     logic `W_ADDR addr  ;
     logic `W_DATA data_w;
     logic `W_DATA data_r;
@@ -86,6 +87,7 @@ interface sram(input logic clk);
     clocking cb @(posedge clk);
         input en    ;
         input we    ;
+        input size  ;
         input addr  ;
         input data_w;
         input data_r;
@@ -95,6 +97,7 @@ interface sram(input logic clk);
     modport master(
         output en    ,
         output we    ,
+        output size  ,
         output addr  ,
         output data_w,
         input  data_r,
@@ -103,6 +106,7 @@ interface sram(input logic clk);
     modport slave(
         input  en    ,
         input  we    ,
+        input  size  ,
         input  addr  ,
         input  data_w,
         output data_r,

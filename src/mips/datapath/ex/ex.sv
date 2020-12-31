@@ -5,7 +5,7 @@ module ex(
     input  logic         clk            ,
     input  logic         rst            ,
     input  logic         reg_stall      ,
-    input  logic         reg_flush    ,
+    input  logic         reg_flush      ,
     output logic         alu_stall      ,
     input  logic `W_TYPE ityp           ,
     input  logic `W_OPER oper           ,
