@@ -50,21 +50,46 @@ module sglalu(
     
     assign shift           = source_b[4:0];
     
-    assign result          =  (func == `FUNC_AND ) ? 
+    function `W_DATA get_result(input logic `W_FUNC func,  input logic `W_DATA source_a, input logic `W_DATA source_b);
+    begin
+      case (func)
+        `FUNC_OR  : get_result =  (source_a | source_b)                                           ;
+        `FUNC_XOR : get_result =  (source_a ^ source_b)                                           ;
+        `FUNC_NOR : get_result = ~(source_a | source_b)                                           ;
+        `FUNC_LUI : get_result =  ({source_b[15:0], 16'h0})                                       ; 
+        `FUNC_SLL : get_result =  (source_a << shift)                                             ;
+        `FUNC_SRL : get_result =  (source_a >> shift)                                             ;
+        `FUNC_SRA : get_result =  (({32{source_a[31]}} << (32'd32 - shift)) | (source_a >> shift));
+        `FUNC_ADD : get_result =  (source_a + source_b)                                           ;
+        `FUNC_SUB : get_result =  (source_a - source_b)                                           ;
+        default   : get_result =  0                                                               ;
+      endcase
+    end
+    endfunction
+
+    assign result = (func == `FUNC_AND ) ? 
                                    ((oper == `OPER_MFHI)  ? hi          : 
                                     (oper == `OPER_MFLO)  ? lo          : 
                                     (oper == `OPER_MFC0)  ? cp0_rt_data : (source_a & source_b))                             :
-                              (func == `FUNC_OR  ) ?  (source_a | source_b)                                                  :
-                              (func == `FUNC_XOR ) ?  (source_a ^ source_b)                                                  :
-                              (func == `FUNC_NOR ) ? ~(source_a | source_b)                                                  :
-                              (func == `FUNC_LUI ) ?  ({source_b[15:0], 16'h0})                                              :
-                              (func == `FUNC_SLL ) ?  (source_a << shift)                                                    :
-                              (func == `FUNC_SRL ) ?  (source_a >> shift)                                                    :
-                              (func == `FUNC_SRA ) ?  (({32{source_a[31]}} << (32'd32 - shift)) | (source_a >> shift))       :
-                              (func == `FUNC_ADD ) ?  (add_result)                                                           :
-                              (func == `FUNC_SUB ) ?  (sub_result)                                                           :
-                              (func == `FUNC_SLT ) ? 
-                                   ((oper == `OPER_ALUS)  ? (slt_result) : ((source_a < source_b) ? {31'h0,1'b1} : 32'h0))   : 0;
+                    (func == `FUNC_SLT ) ? 
+                                   ((oper == `OPER_ALUS)  ? (slt_result) : ((source_a < source_b) ? {31'h0,1'b1} : 32'h0))   :
+                    get_result(func, source_a, source_b);
+
+    // assign result          =  (func == `FUNC_AND ) ? 
+    //                                ((oper == `OPER_MFHI)  ? hi          : 
+    //                                 (oper == `OPER_MFLO)  ? lo          : 
+    //                                 (oper == `OPER_MFC0)  ? cp0_rt_data : (source_a & source_b))                             :
+    //                           (func == `FUNC_OR  ) ?  (source_a | source_b)                                                  :
+    //                           (func == `FUNC_XOR ) ?  (source_a ^ source_b)                                                  :
+    //                           (func == `FUNC_NOR ) ? ~(source_a | source_b)                                                  :
+    //                           (func == `FUNC_LUI ) ?  ({source_b[15:0], 16'h0})                                              :
+    //                           (func == `FUNC_SLL ) ?  (source_a << shift)                                                    :
+    //                           (func == `FUNC_SRL ) ?  (source_a >> shift)                                                    :
+    //                           (func == `FUNC_SRA ) ?  (({32{source_a[31]}} << (32'd32 - shift)) | (source_a >> shift))       :
+    //                           (func == `FUNC_ADD ) ?  (add_result)                                                           :
+    //                           (func == `FUNC_SUB ) ?  (sub_result)                                                           :
+    //                           (func == `FUNC_SLT ) ? 
+    //                                ((oper == `OPER_ALUS)  ? (slt_result) : ((source_a < source_b) ? {31'h0,1'b1} : 32'h0))   : 0;
     
     assign ov = (func == `FUNC_ADD & oper == `OPER_ALUS) ?
                   (((~source_a[31] & ~source_b[31] & add_result[31]) | (source_a[31] &  source_b[31] & ~add_result[31])) ? 1'b1 : 1'b0) :
