@@ -56,8 +56,8 @@ module sbus_to_sram(
     
     assign sbus.stall = 1'b0;
     
-    assign sbus_error.adel = mask == 0 & ~sbus.we;
-    assign sbus_error.ades = mask == 0 &  sbus.we;
+    assign sbus_error.adel = sbus.en & mask == 0 & ~sbus.we;
+    assign sbus_error.ades = sbus.en & mask == 0 &  sbus.we;
     assign sbus_error.addr = sbus.addr           ;
     
 endmodule
