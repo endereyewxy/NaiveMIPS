@@ -42,21 +42,22 @@ module sglalu(
     assign lo_write        =  (oper == `OPER_MTLO) ? 1'b1 : 1'b0;
     assign lo_write_data   =  source_a; 
 
-    assign result          =  (func == `FUNC_AND) ? 
+    assign result          =  (oper == `OPER_MFC0) ? cp0_rt_data                                                             :
+                              (func == `FUNC_AND ) ? 
                                    ((oper == `OPER_MFHI)  ? hi        : 
-                                    (oper == `OPER_MFLO)  ? lo        : (source_a & source_b))                              :
-                              (func == `FUNC_OR)  ?  (source_a | source_b)                                                  :
-                              (func == `FUNC_XOR) ?  (source_a ^ source_b)                                                  :
-                              (func == `FUNC_NOR) ? ~(source_a | source_b)                                                  :
-                              (func == `FUNC_LUI) ?  ({source_b[15:0], 16'h0})                                              :
-                              (func == `FUNC_SLL) ?  (source_a << source_b)                                                 :
-                              (func == `FUNC_SRL) ?  (source_a >> source_b)                                                 :
-                              (func == `FUNC_SRA) ?  (({32{source_a[31]}} << (32'd32 - source_b)) | (source_a >> source_b)) :
-                              (func == `FUNC_ADD) ?  (add_result)                                                           :
-                              (func == `FUNC_SUB) ?  (sub_result)                                                           :
-                              (func == `FUNC_SLT) ? 
+                                    (oper == `OPER_MFLO)  ? lo        : (source_a & source_b))                               :
+                              (func == `FUNC_OR  ) ?  (source_a | source_b)                                                  :
+                              (func == `FUNC_XOR ) ?  (source_a ^ source_b)                                                  :
+                              (func == `FUNC_NOR ) ? ~(source_a | source_b)                                                  :
+                              (func == `FUNC_LUI ) ?  ({source_b[15:0], 16'h0})                                              :
+                              (func == `FUNC_SLL ) ?  (source_a << source_b)                                                 :
+                              (func == `FUNC_SRL ) ?  (source_a >> source_b)                                                 :
+                              (func == `FUNC_SRA ) ?  (({32{source_a[31]}} << (32'd32 - source_b)) | (source_a >> source_b)) :
+                              (func == `FUNC_ADD ) ?  (add_result)                                                           :
+                              (func == `FUNC_SUB ) ?  (sub_result)                                                           :
+                              (func == `FUNC_SLT ) ? 
                                     ((oper == `OPER_ALUS)   ? (slt_result) :                            
-                                     ((source_a < source_b) ? {31'b0,1'b1} : 32'b0))                                     : cp0_rt_data;
+                                     ((source_a < source_b) ? {31'b0,1'b1} : 32'b0))                                     : 0;
 
     assign ov = (func == `FUNC_ADD & oper == `OPER_ALUS) ?
                   (((~source_a[31] & ~source_b[31] & add_result[31]) | (source_a[31] & source_b[31]  & ~add_result[31])) ? 1'b1 : 1'b0) :
@@ -64,3 +65,4 @@ module sglalu(
                   (((~source_a[31] & source_b[31]  & sub_result[31]) | (source_a[31] & ~source_b[31] & ~sub_result[31])) ? 1'b1 : 1'b0) : 1'b0;
 
 endmodule
+

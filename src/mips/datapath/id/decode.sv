@@ -134,6 +134,7 @@ module decode(
                      (oper   == `OPER_SB   |
                       oper   == `OPER_SH   |
                       oper   == `OPER_SW   ) ?     inst[20:16] :
+                     (oper   == `OPER_MFC0 ) ?     inst[15:11] :
                      (ityp   == `TYPE_J    |
                       ityp   == `TYPE_I    ) ? 0 : inst[20:16];
     assign rd_reg_ =  `IS_OPER_JB(oper)      ? 0               :
@@ -143,7 +144,8 @@ module decode(
                      (func   == `FUNC_SLL  |
                       func   == `FUNC_SRL  |
                       func   == `FUNC_SRA  ) ?     inst[15:11] :
-                     (ityp   == `TYPE_I    ) ?     inst[20:16] :
+                     (ityp   == `TYPE_I    |
+                      oper   == `OPER_MFC0 ) ?     inst[20:16] :
                      (ityp   == `TYPE_J    ) ? 0 : inst[15:11];
     
     logic jar, jal, bal;

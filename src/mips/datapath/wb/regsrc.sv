@@ -24,7 +24,7 @@ module regsrc(
                         (oper == `OPER_LBU) ? {24'h0             , mem_data[7 :0]} :
                         (oper == `OPER_LH ) ? {{16{mem_data[15]}}, mem_data[15:0]} :
                         (oper == `OPER_LHU) ? {16'h0             , mem_data[15:0]} : mem_data) : rd_data_a;
-    assign rd.regf = `IS_OPER_C0(oper) ? 0                                                     : rd_regf  ;
+    assign rd.regf = oper == `OPER_MTC0     ? 0                                                : rd_regf  ;
     
 endmodule
 
