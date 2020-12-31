@@ -17,7 +17,9 @@ module cp0(
     
     always @(posedge clk) begin
         if (rst) begin
-            regfile <= 0;
+            regfile[0 ] <= 0           ;
+            regfile[12] <= 32'h0000ff01;
+            regfile[13] <= 0           ;
         end else if (cp0w.we) begin
             regfile[13][31 ] <= cp0w.bd ;
             regfile[12][1  ] <= cp0w.exl;
@@ -31,8 +33,17 @@ module cp0(
     
     always @(posedge clk) regfile[13][15:10] <= hard_intr;
     
-    assign intr_vect = (regfile[13][15:8] & regfile[12][15:8]) & {8{regfile[12][1]}};
-    assign er_epc    =  regfile[14];
+    logic `W_DATA through12;
+    logic `W_DATA through13;
+    logic `W_DATA through14;
+    
+    assign through12 = (rd.regf == 12) ? rd.data : regfile[12];
+    assign through13 = (rd.regf == 13) ? rd.data : regfile[13];
+    assign through14 = (rd.regf == 14) ? rd.data : regfile[14];
+    
+    assign intr_vect = (through13[15:8] & through12[15:8]) & {8{~(cp0w.we ? cp0w.exl : through12[1])}} & {8{through12[0]}};
+    
+    assign er_epc    = cp0w.we ? cp0w.epc : through14;
     
     assign rt.data =
             (cp0w.we & rt.regf ==  8          ) ? cp0w.bva                                                 :

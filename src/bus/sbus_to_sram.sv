@@ -11,8 +11,7 @@ module sbus_to_sram(
     output     logic [3:0]   sram_we   ,
     output     logic `W_ADDR sram_addr ,
     output     logic `W_DATA sram_wdata,
-    input      logic `W_DATA sram_rdata,
-    output     bus_error     sbus_error);
+    input      logic `W_DATA sram_rdata);
     
     logic [3:0] mask;
     
@@ -55,10 +54,6 @@ module sbus_to_sram(
                                                     sram_rdata         ;
     
     assign sbus.stall = 1'b0;
-    
-    assign sbus_error.adel = sbus.en & mask == 0 & ~sbus.we;
-    assign sbus_error.ades = sbus.en & mask == 0 &  sbus.we;
-    assign sbus_error.addr = sbus.addr           ;
     
 endmodule
 

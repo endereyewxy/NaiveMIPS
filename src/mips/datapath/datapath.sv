@@ -10,8 +10,6 @@ module datapath(
     input       logic `W_ADDR er_epc    ,  // ID
     sbus.master               ibus_sbus ,  // IF - ID
     sbus.master               dbus_sbus ,  // MM - WB
-    input       bus_error     ibus_error,  // IF
-    input       bus_error     dbus_error,  // MM
     output      reg_error     cp0w_error,  // MM
     regf_r.master             cp0_rt    ,  // EX
     regf_w.master             cp0_rd    ,  // EX
@@ -21,6 +19,7 @@ module datapath(
     output      debuginfo     debug     );
     
     typedef struct packed {
+        logic         ibus_e ;
         logic         slot   ;
         logic `W_OPER oper   ;
         logic `W_ADDR pc     ;
@@ -104,6 +103,22 @@ module datapath(
     logic         f_forward_ex_rt     ;
     logic `W_DATA f_forward_ex_rt_data;
     
+    // 处理访存异常
+    
+    bus_error dbus_error;
+    
+    logic ibus_e;
+    logic dbus_e;
+    
+    assign ibus_e = ((ibus_sbus.size == 2'b01 & ibus_sbus.addr[  0] != 0) |
+                     (ibus_sbus.size == 2'b10 & ibus_sbus.addr[1:0] != 0) ) & ibus_sbus.en;
+    assign dbus_e = ((dbus_sbus.size == 2'b01 & dbus_sbus.addr[  0] != 0) |
+                     (dbus_sbus.size == 2'b10 & dbus_sbus.addr[1:0] != 0) ) & dbus_sbus.en;
+    
+    assign dbus_error.adel = dbus_e & ~dbus_sbus.we;
+    assign dbus_error.ades = dbus_e &  dbus_sbus.we;
+    assign dbus_error.addr = dbus_sbus.addr;
+    
     // 流水线间寄存器
     
     // 特殊：不会刷新的寄存器，用于传递IF-ID刷新控制信号
@@ -117,16 +132,16 @@ module datapath(
         .data_i( c_if_id_flush),
         .data_o(id_if_id_flush));
     
-    pipeline #(33) if_id_(
+    pipeline #(34) if_id_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_if_id_stall),
         .flush(c_if_id_flush),
         
-        .data_i({if_pc         , if_slot         }),
-        .data_o({id_pipeinfo.pc, id_pipeinfo.slot}));
+        .data_i({if_pc         , if_slot         ,             ibus_e}),
+        .data_o({id_pipeinfo.pc, id_pipeinfo.slot, id_pipeinfo.ibus_e}));
     
-    pipeline #(199) id_ex_(
+    pipeline #(200) id_ex_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_id_ex_stall),
@@ -135,7 +150,7 @@ module datapath(
         .data_i({id_ityp, id_func, id_imme, id_rs_regf, id_rt_regf, rs.data   , rt.data   , id_pipeinfo, intr_vect              , id_sy           , id_bp           , id_ri           , id_er           , er_epc              }),
         .data_o({ex_ityp, ex_func, ex_imme, ex_rs_regf, ex_rt_regf, ex_rs_data, ex_rt_data, ex_pipeinfo, ex_exec_error.intr_vect, ex_exec_error.sy, ex_exec_error.bp, ex_exec_error.ri, ex_exec_error.er, ex_exec_error.er_epc}));
     
-    pipeline #(152) ex_mm_(
+    pipeline #(153) ex_mm_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_ex_mm_stall),
@@ -144,7 +159,7 @@ module datapath(
         .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_source_data}),
         .data_o({mm_pipeinfo, mm_exec_error, mm_source_addr, mm_source_data}));
     
-    pipeline #(77) mm_wb_(
+    pipeline #(78) mm_wb_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_mm_wb_stall),
@@ -236,6 +251,12 @@ module datapath(
     assign cp0_rd.regf = ex_pipeinfo.oper == `OPER_MTC0 ? ex_pipeinfo.rd_regf : 0;
     
     // MM
+    
+    bus_error ibus_error;
+    
+    assign ibus_error.adel = mm_pipeinfo.ibus_e;
+    assign ibus_error.ades = 1'b0;
+    assign ibus_error.addr = mm_pipeinfo.pc;
     
     mm mm_(
         .oper       (mm_pipeinfo.oper),

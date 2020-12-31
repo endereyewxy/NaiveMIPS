@@ -45,8 +45,7 @@ module sglalu(
     assign lo_write        =  (oper == `OPER_MTLO) ? 1'b1 : 1'b0;
     assign lo_write_data   =  source_a; 
     
-    assign result          =  (oper == `OPER_MFC0) ? cp0_rt_data                                                             :
-                              (func == `FUNC_AND ) ? 
+    assign result          =  (func == `FUNC_AND ) ? 
                                    ((oper == `OPER_MFHI)  ? hi          : 
                                     (oper == `OPER_MFLO)  ? lo          : 
                                     (oper == `OPER_MFC0)  ? cp0_rt_data : (source_a & source_b))                             :

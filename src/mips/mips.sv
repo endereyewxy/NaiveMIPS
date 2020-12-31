@@ -9,8 +9,6 @@ module mips(
     input       logic `W_HINT hard_intr ,
     sbus.master               ibus_sbus ,
     sbus.master               dbus_sbus ,
-    input       bus_error     ibus_error,
-    input       bus_error     dbus_error,
     output      debuginfo     debug     );
     
     sbus ibus_mmu(clk);
@@ -60,8 +58,6 @@ module mips(
         .er_epc    (er_epc         ),
         .ibus_sbus (ibus_mmu.master),
         .dbus_sbus (dbus_mmu.master),
-        .ibus_error(ibus_error     ),
-        .dbus_error(dbus_error     ),
         .cp0w_error(cp0w           ),
         .cp0_rt    (cp0_rt.master  ),
         .cp0_rd    (cp0_rd.master  ),
