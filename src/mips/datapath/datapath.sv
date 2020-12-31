@@ -36,6 +36,7 @@ module datapath(
     
     // ID
     
+    logic         id_if_id_flush;
     logic `W_TYPE id_ityp       ;
     logic `W_FUNC id_func       ;
     logic `W_DATA id_imme       ;
@@ -107,6 +108,17 @@ module datapath(
     
     // 流水线间寄存器
     
+    // 特殊：不会刷新的寄存器，用于传递IF-ID刷新控制信号
+    
+    pipeline #(1) if_id_control_(
+        .clk  (clk ),
+        .rst  (rst ),
+        .stall(1'b0),
+        .flush(1'b0),
+        
+        .data_i( c_if_id_flush),
+        .data_o(id_if_id_flush));
+    
     pipeline #(33) if_id_(
         .clk  (clk          ),
         .rst  (rst          ),
@@ -163,10 +175,10 @@ module datapath(
     
     // ID
     
-    // 防止指令为X
+    // 防止指令为X；刷新IF-ID时也刷新指令
     logic `W_DATA no_x_inst;
     
-    assign no_x_inst = ibus_sram.data_r[0] === 1'bx ? 32'h0 : ibus_sram.data_r;
+    assign no_x_inst = (ibus_sram.data_r[0] === 1'bx | id_if_id_flush) ? 32'h0 : ibus_sram.data_r;
     
     id id_(
         .pc             (id_pipeinfo.pc      ),
@@ -201,7 +213,7 @@ module datapath(
     
     ex ex_(
         .clk            (clk                 ),
-        .rst            (rst                 ),
+        .rst            (rst | c_ex_mm_flush ),
         .reg_stall      (c_id_ex_stall       ),
         .alu_stall      (ex_alu_stall        ),
         .ityp           (ex_ityp             ),

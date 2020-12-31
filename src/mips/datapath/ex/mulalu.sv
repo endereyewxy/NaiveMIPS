@@ -35,6 +35,7 @@ module mulalu(
     
     logic [63:0] number_a;
     logic [63:0] number_b;
+    logic [63:0] result  ;
     
     logic       ready;
     logic [5:0] count;
@@ -54,9 +55,9 @@ module mulalu(
             case (state)
                 NORM:
                     begin
-                        state    <= WORK;
-                        {hi, lo} <= 64'h0;
-                        ready    <= 1'b0;
+                        state  <= WORK;
+                        result <= 64'h0;
+                        ready  <= 1'b0;
                         if (sign) begin
                             number_a <= {{32{source_a[31]}}, source_a};
                             number_b <= {{32{source_b[31]}}, source_b};
@@ -67,11 +68,12 @@ module mulalu(
                     end
                 WORK:
                     if (number_a == 0) begin
-                        state <= DONE;
-                        ready <= 1'b1;
+                        state    <= DONE;
+                        {hi, lo} <= result;
+                        ready    <= 1'b1;
                     end else begin
                         if (number_a[0])
-                            {hi, lo} <= {hi, lo} + number_b;
+                            result <= result + number_b;
                         number_a <= {1'b0, number_a[63:1]};
                         number_b <= {number_b[62:0], 1'b0};
                     end
@@ -89,7 +91,6 @@ module mulalu(
                 NORM:
                     begin
                         state    <= WORK;
-                        {hi, lo} <= 64'h0;
                         ready    <= 1'b0;
                         count    <= 6'd32;
                         divng    <= sign & (source_a[31] ^ source_b[31]);
