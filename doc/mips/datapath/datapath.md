@@ -1,32 +1,44 @@
 | 信号             |  线号  | 方向 |  位宽  | 描述                               |
 | ---------------- | :----: | :--: | :----: | ---------------------------------- |
-| ibus_en          | IF.A.1 | 输出 |   1    | 指令地址读使能                     |
-| ibus_addr        | IF.A.1 | 输出 | W_ADDR | 指令地址                           |
-| ibus_inst        | ID.I.1 | 输入 | W_DATA | 指令                               |
-| ibus_except_adel | ID.E.1 | 输入 |   1    | 指令总线取数据异常                 |
-| ibus_except_addr | ID.E.1 | 输入 | W_ADDR | 指令总线取数据异常的虚地址         |
+| clk              |        | 输入 |   1    | 时钟信号                           |
+| rst              |        | 输入 |   1    | 重置信号                           |
 | intr_vect        | ID.E.2 | 输入 | W_INTV | 中断向量                           |
-| cp0_rt_regf      | ID.I.2 | 输入 | W_REGF | 要读取的CP0寄存器号                |
-| cp0_rt_data      | EX.D.4 | 输入 | W_DATA | 要读取的CP0寄存器值                |
-| cp0_rd_regf      | ID.I.2 | 输入 | W_REGF | 要写入的CP0寄存器号，无则为零      |
-| cp0_rd_data      | EX.D.3 | 输出 | W_DATA | 要写入的CP0寄存器值                |
-| cp0_we           | MM.D.2 | 输出 |   1    | CP0寄存器写使能                    |
-| cp0_bd           | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Cause.BD      |
-| cp0_exl          | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Status.EXL    |
-| cp0_exc          | MM.D.2 | 输出 | W_EXCC | CP0寄存器写数据：CP0.Cause.ExcCode |
-| cp0_epc          | MM.D.2 | 输出 | W_ADDR | CP0寄存器写数据：CP0.EPC           |
-| cp0_bva          | MM.D.2 | 输出 | W_ADDR | CP0寄存器写数据：CP0.BadVAddr      |
-| dbus_en          | MM.A.1 | 输出 |   1    | 访存使能                           |
-| dbus_we          | MM.A.1 | 输出 |   4    | 访存读写控制信号                   |
-| dbus_addr        | MM.A.1 | 输出 | W_ADDR | 访存地址                           |
-| dbus_data_w      | MM.D.1 | 输出 | W_ADDR | 访存数据（写）                     |
-| dbus_data_r      | WB.D.1 | 输入 | W_DATA | 访存数据（读）                     |
-| dbus_except_adel | MM.E.1 | 输入 |   1    | 数据总线取数据异常                 |
-| dbus_except_ades | MM.E.1 | 输入 |   1    | 数据总线写数据异常                 |
-| dbus_except_addr | MM.E.1 | 输入 | W_ADDR | 数据总线读写数据异常的虚地址       |
-| rs_regf          | ID.I.2 | 输出 | W_REGF | 第一个源寄存器号                   |
-| rt_regf          | ID.I.2 | 输出 | W_REGF | 第二个源寄存器号                   |
-| rd_regf          | ID.I.2 | 输出 | W_REGF | 目标寄存器号，无则为零             |
-| rs_data          | ID.D.4 | 输入 | W_DATA | 第一个源寄存器值                   |
-| rt_data          | ID.D.4 | 输入 | W_DATA | 第二个源寄存器值                   |
-| rd_data          | WB.D.2 | 输出 | W_DATA | 目标寄存器值                       |
+| er_epc           |        | 输入 | W_ADDR |                                    |
+|ibus_sram.en	|	|	输出|1	|	|
+| ibus_sram.we |	| 输出 | 4 |	|
+| ibus_sram.addr |	| 输出 | W_ADDR |	|
+| ibus_sram.data_w |	| 输出 | W_DATA |	|
+| ibus_sram.data_r |	| 输入 | W_DATA |	|
+| dbus_sram.stall |	| 输入 | 1 |	|
+|dbus_sram.en	|	|	输出|1	|	|
+| dbus_sram.we |	| 输出 | 4 |	|
+| dbus_sram.addr |	| 输出 | W_ADDR |	|
+| dbus_sram.data_w |	| 输出 | W_DATA |	|
+| dbus_sram.data_r |	| 输入 | W_DATA |	|
+| dbus_sram.stall |	| 输入 | 1 |	|
+| ibus_error.adel |        | 输入 |   1    |                                     |
+| ibus_error.ades |        | 输入 |   1    |                                     |
+| ibus_error.addr |        | 输入 | W_ADDR |                                     |
+| dbus_error.adel |        | 输入 |   1    |                                     |
+| dbus_error.ades |        | 输入 |   1    |                                     |
+| dbus_error.addr |        | 输入 | W_ADDR |                                     |
+| cp0w_error.we  | MM.D.2 | 输出 |   1    | CP0寄存器写使能                     |
+| cp0w_error.bd  | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Cause.BD       |
+| cp0w_error.exl | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Status.EXL     |
+| cp0w_errorexc | MM.D.2 | 输出 | W_EXCC | CP0寄存器写数据：CP0.Cause.ExcCode  |
+| cp0w_error.epc | MM.D.2 | 输出 | W_ADDR | CP0寄存器写数据：CP0.EPC            |
+| cp0w_error.bva | MM.D.2 | 输出 | W_ADDR | CP0寄存器写数据：CP0.BadVAddr       |
+| cp0_rt.regf |	| 输出 | W_REGF |	|
+| cp0_rt.data |	| 输入 | W_DATA |	|
+| cp0_rd.regf |	| 输出 | W_REGF |	|
+| cp0_rd.data |	| 输出 | W_DATA |	|
+| rs.regf |	| 输出 | W_REGF |	|
+| rs.data |	| 输入 | W_DATA |	|
+| rt.regf |	| 输出 | W_REGF |	|
+| rt.data |	| 输入 | W_DATA |	|
+| rd.regf |	| 输出 | W_REGF |	|
+| rd.data |	| 输出 | W_DATA |	|
+| debug.debug_wb_pc |	| 输出 | W_DATA |	|
+| debug.debug_wb_rf_wen |	| 输出 | 4 |	|
+| debug.debug_wb_rf_wnum |	| 输出 | W_REGF |	|
+| debug.debug_wb_rf_wdata |	| 输出 | W_DATA |	|

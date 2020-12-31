@@ -1,8 +1,28 @@
-| 信号名称     | 线号 | 方向 | 位宽 | 描述            |
-| ------------ | :--: | :--: | :--: | --------------- |
-| instr_v_addr |      | 输入 |  32  | 指令的虚拟地址  |
-| data_v_addr  |      | 输入 |  32  | 数据的虚拟地址  |
-| instr_p_addr |      | 输出 |  32  | 指令的物理地址  |
-| data_p_addr  |      | 输出 |  32  | 数据的物理地址  |
-| no_d_cache   |      | 输出 |  1   | 是否经过d_cache |
+| 信号名称      | 线号 | 方向 | 位宽   | 描述 |
+| ------------- | ---- | ---- | ------ | ---- |
+| ibus_v.en     |      | 输入 | 1      |      |
+| ibus_v.we     |      | 输入 | [3:0]  |      |
+| ibus_v.addr   |      | 输入 | W_ADDR |      |
+| ibus_v.data_w |      | 输入 | W_DATA |      |
+| ibus_v.data_r |      | 输出 | W_DATA |      |
+| ibus_v.stall  |      | 输出 | 1      |      |
+| dbus_v.en     |      | 输入 | 1      |      |
+| dbus_v.we     |      | 输入 | [3:0]  |      |
+| dbus_v.addr   |      | 输入 | W_ADDR |      |
+| dbus_v.data_w |      | 输入 | W_DATA |      |
+| dbus_v.data_r |      | 输出 | W_DATA |      |
+| dbus_v.stall  |      | 输出 | 1      |      |
+| ibus_p.en     |      | 输出 | 1      |      |
+| ibus_p.we     |      | 输出 | [3:0]  |      |
+| ibus_p.addr   |      | 输出 | W_ADDR |      |
+| ibus_p.data_w |      | 输出 | W_DATA |      |
+| ibus_p.data_r |      | 输入 | W_DATA |      |
+| ibus_p.stall  |      | 输入 | 1      |      |
+| dbus_p.en     |      | 输出 | 1      |      |
+| dbus_p.we     |      | 输出 | [3:0]  |      |
+| dbus_p.addr   |      | 输出 | W_ADDR |      |
+| dbus_p.data_w |      | 输出 | W_DATA |      |
+| dbus_p.data_r |      | 输入 | W_DATA |      |
+| dbus_p.stall  |      | 输入 | 1      |      |
+| no_dcache     |      | 输出 | 1      |      |
 

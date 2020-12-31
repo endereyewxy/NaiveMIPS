@@ -2,7 +2,6 @@
 | ------------------ | :----: | :--: | :----: | ---------------------------------------- |
 | oper_id            | ID.I.2 | 输入 | W_OPER | ID阶段的操作码                           |
 | oper_ex            | ID.I.2 | 输入 | W_OPER | EX阶段的操作码                           |
-| oper_mm            | ID.I.2 | 输入 | W_OPER | MM阶段的操作码                           |
 | from_ex_regf       | EX.D.5 | 输入 | W_REGF | 来自EX阶段，目标寄存器号                 |
 | from_ex_data       | EX.D.5 | 输入 | W_DATA | 来自EX阶段，目标                         |
 | from_mm_regf       | MM.D.1 | 输入 | W_REGF | 来自MM阶段，目标寄存器号                 |

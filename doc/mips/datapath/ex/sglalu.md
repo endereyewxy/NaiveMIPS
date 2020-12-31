@@ -11,9 +11,9 @@
 | mulalu_func   |        | 输出 | W_FUNC | 输出到多周期的运算码             |
 | hi            |        | 输入 | W_DATA | HI寄存器当前值                   |
 | hi_write      |        | 输出 |   1    | 写HI寄存器使能                   |
-| hi_write_data |        | 输入 | W_DATA | 写HI寄存器数据                   |
+| hi_write_data |        | 输出 | W_DATA | 写HI寄存器数据                   |
 | lo            |        | 输入 | W_DATA | LO寄存器当前值                   |
 | lo_write      |        | 输出 |   1    | 写LO寄存器使能                   |
-| lo_write_data |        | 输入 | W_DATA | 写LO寄存器数据                   |
+| lo_write_data |        | 输出 | W_DATA | 写LO寄存器数据                   |
 | ov            | EX.E.1 | 输出 |   1    | 运算器溢出异常                   |
 

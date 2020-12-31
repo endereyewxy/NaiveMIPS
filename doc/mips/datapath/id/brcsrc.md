@@ -1,8 +1,8 @@
 | 信号            | 线号   | 方向 | 位宽   | 描述                       |
 | --------------- | ------ | ---- | ------ | -------------------------- |
 | forward_rs      | ID.D.3 | 输入 | 1      | 第一个源寄存器前推的有效性 |
-| forward_rs_data | ID.D.3 | 输入 | W_DATA | 第一个源寄存器前推的值     |
 | forward_rt      | ID.D.3 | 输入 | 1      | 第二个源寄存器前推的有效性 |
+| forward_rs_data | ID.D.3 | 输入 | W_DATA | 第一个源寄存器前推的值     |
 | forward_rt_data | ID.D.3 | 输入 | W_DATA | 第二个源寄存器前推的值     |
 | rs_data         | ID.D.4 | 输入 | W_DATA | 第一个源寄存器值           |
 | rt_data         | ID.D.4 | 输入 | W_DATA | 第二个源寄存器值           |
