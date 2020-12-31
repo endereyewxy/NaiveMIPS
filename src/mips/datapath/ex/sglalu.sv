@@ -45,6 +45,10 @@ module sglalu(
     assign lo_write        =  (oper == `OPER_MTLO) ? 1'b1 : 1'b0;
     assign lo_write_data   =  source_a; 
     
+    logic [4:0] shift;
+    
+    assign shift           = source_b[4:0];
+    
     assign result          =  (func == `FUNC_AND ) ? 
                                    ((oper == `OPER_MFHI)  ? hi          : 
                                     (oper == `OPER_MFLO)  ? lo          : 
@@ -53,9 +57,9 @@ module sglalu(
                               (func == `FUNC_XOR ) ?  (source_a ^ source_b)                                                  :
                               (func == `FUNC_NOR ) ? ~(source_a | source_b)                                                  :
                               (func == `FUNC_LUI ) ?  ({source_b[15:0], 16'h0})                                              :
-                              (func == `FUNC_SLL ) ?  (source_a << source_b)                                                 :
-                              (func == `FUNC_SRL ) ?  (source_a >> source_b)                                                 :
-                              (func == `FUNC_SRA ) ?  (({32{source_a[31]}} << (32'd32 - source_b)) | (source_a >> source_b)) :
+                              (func == `FUNC_SLL ) ?  (source_a << shift)                                                    :
+                              (func == `FUNC_SRL ) ?  (source_a >> shift)                                                    :
+                              (func == `FUNC_SRA ) ?  (({32{source_a[31]}} << (32'd32 - shift)) | (source_a >> shift))       :
                               (func == `FUNC_ADD ) ?  (add_result)                                                           :
                               (func == `FUNC_SUB ) ?  (sub_result)                                                           :
                               (func == `FUNC_SLT ) ? 
