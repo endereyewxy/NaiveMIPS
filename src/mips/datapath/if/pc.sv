@@ -1,5 +1,6 @@
-`timescale 1ns / 1ps
-`include "defines.vh"
+`timescale 1ns/1ps
+
+import includes::*;
 
 module pc(
     input  logic         clk        ,
@@ -16,17 +17,16 @@ module pc(
     assign pc = ~(rst | stall);
     
     always @(posedge clk)begin
-        if (rst) begin
+        if (rst)
             pc_addr <= 32'hbfc00000;
-        end else if (except) begin
+        else if (except)
             pc_addr <= except_addr;
-        end else if (stall) begin
+        else if (stall)
             pc_addr <= pc_addr;
-        end else if (branch) begin
+        else if (branch)
             pc_addr <= branch_addr;
-        end else begin
+        else
             pc_addr <= pc_addr + 32'h4;
-        end
     end
     
 endmodule

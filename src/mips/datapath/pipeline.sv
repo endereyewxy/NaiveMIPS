@@ -1,5 +1,4 @@
 `timescale 1ns/1ps
-`include "defines.vh"
 
 module pipeline #(parameter W = 32) (
     input  logic           clk   ,

@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-`include "defines.vh"
+
+import includes::*;
 
 module decode(
     input  logic `W_DATA inst   ,
@@ -161,4 +162,5 @@ module decode(
     assign er = oper == `OPER_ERET;
     
 endmodule
+
 

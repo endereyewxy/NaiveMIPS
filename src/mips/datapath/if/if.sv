@@ -1,5 +1,6 @@
-`timescale 1ns / 1ps
-`include "defines.vh"
+`timescale 1ns/1ps
+
+import includes::*;
 
 module if_(
     input  logic         clk        ,

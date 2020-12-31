@@ -1,5 +1,7 @@
 | 信号             |  线号  | 方向 |  位宽  | 描述                               |
 | ---------------- | :----: | :--: | :----: | ---------------------------------- |
+| clk              |        | 输入 |   1    | 时钟                               |
+| rst              |        | 输入 |   1    | 复位                               |
 | ibus_en          | IF.A.1 | 输出 |   1    | 指令地址读使能                     |
 | ibus_addr        | IF.A.1 | 输出 | W_ADDR | 指令地址                           |
 | ibus_inst        | ID.I.1 | 输入 | W_DATA | 指令                               |
@@ -10,7 +12,7 @@
 | cp0_rt_data      | EX.D.4 | 输入 | W_DATA | 要读取的CP0寄存器值                |
 | cp0_rd_regf      | ID.I.2 | 输入 | W_REGF | 要写入的CP0寄存器号，无则为零      |
 | cp0_rd_data      | EX.D.3 | 输出 | W_DATA | 要写入的CP0寄存器值                |
-| cp0_we           | MM.D.2 | 输出 |   1    | CP0寄存器写使能                    |
+| cp0_en           | MM.D.2 | 输出 |   1    | CP0寄存器写使能                    |
 | cp0_bd           | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Cause.BD      |
 | cp0_exl          | MM.D.2 | 输出 |   1    | CP0寄存器写数据：CP0.Status.EXL    |
 | cp0_exc          | MM.D.2 | 输出 | W_EXCC | CP0寄存器写数据：CP0.Cause.ExcCode |

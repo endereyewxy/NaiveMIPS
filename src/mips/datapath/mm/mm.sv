@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-`include "defines.vh"
+
+import includes::*;
 
 module mm(
     input  logic `W_OPER oper       ,
@@ -30,7 +31,7 @@ module mm(
         .except_addr(except_addr));
     
     memctl memctl_(
-        .oper       (oper       ),       
+        .oper       (oper       ),
         .source_addr(source_addr),
         .source_data(source_data),
         .dbus_en    (dbus_en    ),

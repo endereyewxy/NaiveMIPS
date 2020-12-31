@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-`include "defines.vh"
+
+import includes::*;
 
 module except(
     input  logic         slot       ,

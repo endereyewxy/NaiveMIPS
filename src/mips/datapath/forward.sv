@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-`include "defines.vh"
+
+import includes::*;
 
 module forward(
     input  logic `W_OPER oper_id           ,

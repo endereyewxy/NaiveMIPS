@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
-`include "defines.vh"
+
+import includes::*;
 
 module mulalu(
     input  logic         clk          ,
@@ -140,6 +141,6 @@ module mulalu(
             if (lo_write) lo <= lo_write_data;
         end
     end
-
+    
 endmodule
 
