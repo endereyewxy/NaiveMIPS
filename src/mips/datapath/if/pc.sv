@@ -12,20 +12,22 @@ module pc(
     output logic         pc         ,
     output logic `W_ADDR pc_addr    );
     
+    logic `W_ADDR pc_real;
     
-    assign pc = ~(rst | stall);
+    assign pc      = ~(rst | stall);
+    assign pc_addr = except ? except_addr : pc_real;
     
     always @(posedge clk)begin
         if (rst) begin
-            pc_addr <= 32'hbfc00000;
+            pc_real <= 32'hbfc00000;
         end else if (except) begin
-            pc_addr <= except_addr;
+            pc_real <= except_addr + 4;
         end else if (stall) begin
-            pc_addr <= pc_addr;
+            pc_real <= pc_real;
         end else if (branch) begin
-            pc_addr <= branch_addr;
+            pc_real <= branch_addr;
         end else begin
-            pc_addr <= pc_addr + 32'h4;
+            pc_real <= pc_real + 32'h4;
         end
     end
     

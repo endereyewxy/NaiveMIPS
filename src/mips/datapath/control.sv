@@ -33,7 +33,7 @@ module control(
     assign ex_mm_stall = mm_wb | ex_mm                ;
     assign mm_wb_stall = mm_wb                        ;
     
-    assign if_id_flush = if_id | except;
+    assign if_id_flush = if_id         ;
     assign id_ex_flush = id_ex | except;
     assign ex_mm_flush = ex_mm | except;
     assign mm_wb_flush = mm_wb | except;
