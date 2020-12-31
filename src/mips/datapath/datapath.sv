@@ -221,7 +221,7 @@ module datapath(
         .source_data    (ex_source_data      ));
     
     assign cp0_rt.regf = ex_rt_regf;
-    assign cp0_rd.regf = `IS_OPER_C0(ex_pipeinfo.oper) ? ex_pipeinfo.rd_regf : 0;
+    assign cp0_rd.regf = ex_pipeinfo.oper == `OPER_MTC0 ? ex_pipeinfo.rd_regf : 0;
     
     // MM
     

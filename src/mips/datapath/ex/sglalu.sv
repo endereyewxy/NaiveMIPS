@@ -31,7 +31,7 @@ module sglalu(
                              (~source_a[31] & source_b[31] )  ? 32'b0          :
                              (source_a < source_b) ? {31'b0,1'b1}  : 32'b0;
 
-    assign cp0_rd_data     =  source_a;
+    assign cp0_rd_data     =  source_b;
     assign mulalu_func     =  (func == `FUNC_MUL | func == `FUNC_DIV) ? func : 5'b00000;
     assign mulalu_sign     =  (mulalu_func == 5'b00000) ? 1'b0 :
                               (oper == `OPER_ALUU)      ? 1'b0 : 1'b1;
