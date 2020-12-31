@@ -15,12 +15,12 @@ module except(
     
     assign {actual_except, cp0w.exc} =
         (exec.intr_vect != 0)   ? {1'b1, `EXCC_INT } :
-         ibus.adel              ? {1'b1, `EXCC_ADEL} :
+        (ibus.adel | dbus.adel) ? {1'b1, `EXCC_ADEL} :
          exec.ri                ? {1'b1, `EXCC_RI  } :
          exec.ov                ? {1'b1, `EXCC_OV  } :
          exec.bp                ? {1'b1, `EXCC_BP  } :
          exec.sy                ? {1'b1, `EXCC_SY  } :
-        (dbus.adel | dbus.ades) ? {1'b1, `EXCC_ADES} : 0;
+         dbus.ades              ? {1'b1, `EXCC_ADES} : 0;
     
     assign except      = actual_except | exec.er;
     assign except_addr = actual_except ? 32'hbfc00380 : exec.er ? exec.er_epc : 0;
