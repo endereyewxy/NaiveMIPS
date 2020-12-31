@@ -213,8 +213,9 @@ module datapath(
     
     ex ex_(
         .clk            (clk                 ),
-        .rst            (rst | c_ex_mm_flush ),
+        .rst            (rst                 ),
         .reg_stall      (c_id_ex_stall       ),
+        .reg_flush      (c_id_ex_flush       ),
         .alu_stall      (ex_alu_stall        ),
         .ityp           (ex_ityp             ),
         .oper           (ex_pipeinfo.oper    ),

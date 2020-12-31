@@ -5,6 +5,7 @@ module mulalu(
     input  logic         clk          ,
     input  logic         rst          ,
     
+    input  logic         reg_flush    ,
     input  logic         reg_stall    ,
     output logic         alu_stall    ,
     
@@ -46,10 +47,13 @@ module mulalu(
     
     always @(posedge clk) begin
         if (rst) begin
-            state <= NORM;
+            state <= NORM ;
             hi    <= 32'h0;
             lo    <= 32'h0;
             ready <= 1'b0 ;
+        end else if (reg_flush) begin
+            state <= NORM;
+            ready <= 1'b0;
         end else if (is_mul) begin
             
             case (state)
