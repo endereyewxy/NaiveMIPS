@@ -19,18 +19,20 @@ module cp0(
             regfile[0 ] <= 0           ;
             regfile[12] <= 32'h0000ff01;
             regfile[13] <= 0           ;
-        end else if (cp0w.we) begin
-            regfile[13][31 ] <= cp0w.bd ;
-            regfile[12][1  ] <= cp0w.exl;
-            regfile[13][6:2] <= cp0w.exc;
-            regfile[14]      <= cp0w.epc;
-            regfile[ 8]      <= cp0w.bva;
-        end else if (rd.regf != 0) begin
-            regfile[rd.regf] <= rd.data;
+            regfile[13][ 9: 0] <= 0    ;
+        end else begin
+            regfile[13][15:10]   <= hard_intr;
+            if (cp0w.we) begin
+                regfile[13][31 ] <= cp0w.bd ;
+                regfile[12][1  ] <= cp0w.exl;
+                regfile[13][6:2] <= cp0w.exc;
+                regfile[14]      <= cp0w.epc;
+                regfile[ 8]      <= cp0w.bva;
+            end else if (rd.regf != 0) begin
+                regfile[rd.regf] <= rd.data ;
+            end
         end
     end
-    
-    always @(posedge clk) regfile[13][15:10] <= hard_intr;
     
     logic `W_DATA through12;
     logic `W_DATA through13;

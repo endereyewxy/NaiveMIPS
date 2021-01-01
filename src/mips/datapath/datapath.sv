@@ -187,14 +187,14 @@ module datapath(
         .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_source_data}),
         .data_o({mm_pipeinfo, mm_exec_error, mm_source_addr, mm_source_data}));
     
-    pipeline #(78) mm_wb_(
+    pipeline #(76) mm_wb_(
         .clk  (clk          ),
         .rst  (rst          ),
         .stall(c_mm_wb_stall),
         .flush(c_mm_wb_flush),
         
-        .data_i({mm_pipeinfo, dbus_sbus.data_w, mm_word_offset}),
-        .data_o({wb_pipeinfo, wb_rd_data_a    , wb_word_offset}));
+        .data_i({mm_pipeinfo, dbus_sbus.data_w}),
+        .data_o({wb_pipeinfo, wb_rd_data_a    }));
     
     // 模块实例化
     

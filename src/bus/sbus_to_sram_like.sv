@@ -31,8 +31,8 @@ module sbus_to_sram_like(
     logic `W_DATA last_data_r;
     
     logic  new_req; // 是否产生了新的请求
-    assign new_req = sbus.en & ~(sbus.we ? {last_we, last_size, last_addr, last_data_w} === {sbus.we, sbus.size, sbus.addr, sbus.data_w}
-                                         : {last_we, last_size, last_addr             } === {sbus.we, sbus.size, sbus.addr             });
+    assign new_req = sbus.en & ~(sbus.we ? {last_we, last_size, last_addr, last_data_w} == {sbus.we, sbus.size, sbus.addr, sbus.data_w}
+                                         : {last_we, last_size, last_addr             } == {sbus.we, sbus.size, sbus.addr             });
     
     assign sbus.data_r = (last_addr[1:0] == 2'b11) ? {24'h0, last_data_r[31:24]} :
                          (last_addr[1:0] == 2'b10) ? {16'h0, last_data_r[31:16]} :
