@@ -12,4 +12,3 @@
 | source_a        | EX.D.2 | 输出 | W_DATA | 第一个运算器操作数         |
 | source_b        | EX.D.2 | 输出 | W_DATA | 第二个运算器操作数         |
 | source_data     | EX.D.2 | 输出 | W_DATA | 控制访存                   |
-

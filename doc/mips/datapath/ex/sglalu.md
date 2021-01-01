@@ -16,4 +16,3 @@
 | lo_write      |        | 输出 |   1    | 写LO寄存器使能                   |
 | lo_write_data |        | 输出 | W_DATA | 写LO寄存器数据                   |
 | ov            | EX.E.1 | 输出 |   1    | 运算器溢出异常                   |
-
