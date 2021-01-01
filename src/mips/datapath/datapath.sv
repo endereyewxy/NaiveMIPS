@@ -34,6 +34,7 @@ module datapath(
     
     // ID
     
+    logic         id_if_id_stall;
     logic         id_if_id_flush;
     logic `W_TYPE id_ityp       ;
     logic `W_FUNC id_func       ;
@@ -74,8 +75,10 @@ module datapath(
     
     // WB
     
-    logic `W_DATA wb_rd_data_a;
-    pipeinfo      wb_pipeinfo ;
+    logic         wb_mm_wb_stall;
+    logic         wb_mm_wb_flush;
+    logic `W_DATA wb_rd_data_a  ;
+    pipeinfo      wb_pipeinfo   ;
     
     // control
     
@@ -118,18 +121,44 @@ module datapath(
     assign dbus_error.ades = dbus_e &  dbus_sbus.we;
     assign dbus_error.addr = dbus_sbus.addr;
     
-    // 流水线间寄存器
+    // 处理总线读：维持读出数据的停顿、刷新语义
     
-    // 特殊：不会刷新的寄存器，用于传递IF-ID刷新控制信号
-    
-    pipeline #(1) if_id_control_(
+    pipeline #(4) if_id_control_(
         .clk  (clk ),
         .rst  (rst ),
         .stall(1'b0),
         .flush(1'b0),
         
-        .data_i( c_if_id_flush),
-        .data_o(id_if_id_flush));
+        .data_i({ c_if_id_stall,  c_if_id_flush,  c_mm_wb_stall,  c_mm_wb_flush}),
+        .data_o({id_if_id_stall, id_if_id_flush, wb_mm_wb_stall, wb_mm_wb_flush}));
+    
+    logic `W_DATA save_ibus;
+    logic `W_DATA save_dbus;
+    
+    pipeline #(32) delay_ibus_(
+        .clk  (clk           ),
+        .rst  (rst           ),
+        .stall(id_if_id_stall),
+        .flush(id_if_id_flush),
+        
+        .data_i(ibus_sbus.data_r),
+        .data_o(save_ibus       ));
+    
+    pipeline #(32) delay_dbus_(
+        .clk  (clk           ),
+        .rst  (rst           ),
+        .stall(wb_mm_wb_stall),
+        .flush(wb_mm_wb_flush),
+        
+        .data_i(dbus_sbus.data_r),
+        .data_o(save_dbus       ));
+    
+    logic `W_DATA real_ibus;
+    logic `W_DATA real_dbus;
+    assign        real_ibus = id_if_id_flush ? 32'h0 : id_if_id_stall ? save_ibus : ibus_sbus.data_r;
+    assign        real_dbus = wb_mm_wb_flush ? 32'h0 : wb_mm_wb_stall ? save_dbus : dbus_sbus.data_r;
+    
+    // 流水线间寄存器
     
     pipeline #(34) if_id_(
         .clk  (clk          ),
@@ -188,14 +217,9 @@ module datapath(
     
     // ID
     
-    // 防止指令为X；刷新IF-ID时也刷新指令
-    logic `W_DATA no_x_inst;
-    
-    assign no_x_inst = (ibus_sbus.data_r[0] === 1'bx | id_if_id_flush) ? 32'h0 : ibus_sbus.data_r;
-    
     id id_(
         .pc             (id_pipeinfo.pc      ),
-        .inst           (no_x_inst           ),
+        .inst           (real_ibus           ),
         .rs_data        (rs.data             ),
         .rt_data        (rt.data             ),
         .forward_rs     (f_forward_id_rs     ),
@@ -281,7 +305,7 @@ module datapath(
         .oper       (wb_pipeinfo.oper   ),
         .rd_regf    (wb_pipeinfo.rd_regf),
         .rd_data_a  (wb_rd_data_a       ),
-        .rd_data_b  (dbus_sbus.data_r   ),
+        .rd_data_b  (real_dbus          ),
         .pc         (wb_pipeinfo.pc     ),
         .rd         (rd                 ));
     
@@ -329,7 +353,7 @@ module datapath(
         .forward_ex_rt     (f_forward_ex_rt     ),
         .forward_ex_rt_data(f_forward_ex_rt_data));
     
-    assign debug = {wb_pipeinfo.pc, (rd.regf == 0) ? 4'b0000 : 4'b1111, rd.regf, rd.data};
+    assign debug = {wb_pipeinfo.pc, {4{rd.regf != 0 & ~wb_mm_wb_stall & ~wb_mm_wb_flush}}, rd.regf, rd.data};
     
 endmodule
 
