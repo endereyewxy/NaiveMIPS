@@ -64,10 +64,8 @@ module ex(
         .mulalu_func  (mulalu_func),
         .hi           (hi         ),
         .hi_write     (hi_write   ),
-        .hi_write_data(source_a   ),
         .lo           (lo         ),
         .lo_write     (lo_write   ),
-        .lo_write_data(source_a   ),
         .ov           (ov         ));
     
     mulalu mulalu_(

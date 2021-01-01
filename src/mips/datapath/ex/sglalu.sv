@@ -14,10 +14,8 @@ module sglalu(
     output logic `W_FUNC mulalu_func  ,
     input  logic `W_DATA hi           ,
     output logic         hi_write     ,
-    output logic `W_DATA hi_write_data,
     input  logic `W_DATA lo           ,
     output logic         lo_write     ,
-    output logic `W_DATA lo_write_data,
     output logic         ov          );
     
     logic `W_DATA add_result;
@@ -41,10 +39,8 @@ module sglalu(
                             (oper == `OPER_ALUU)      ? 1'b0 : 1'b1;
     
     assign hi_write      =  (oper == `OPER_MTHI) ? 1'b1 : 1'b0;
-    assign hi_write_data =  source_a;
     
     assign lo_write      =  (oper == `OPER_MTLO) ? 1'b1 : 1'b0;
-    assign lo_write_data =  source_a;
     
     function `W_DATA get_result(input logic `W_FUNC func,  input logic `W_DATA source_a, input logic `W_DATA source_b, input logic [4:0] shift);
         case (func)
