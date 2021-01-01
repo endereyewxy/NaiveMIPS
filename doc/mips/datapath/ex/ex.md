@@ -20,4 +20,3 @@
 | result          | EX.D.5 | 输出 | W_DATA | 运算结果                   |
 | ov              | EX.E.1 | 输出 |   1    | 运算器溢出异常             |
 | source_data     |        | 输出 | W_DATA | 控制访存                   |
-
