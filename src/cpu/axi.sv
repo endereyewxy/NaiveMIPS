@@ -57,6 +57,8 @@ module mycpu_top(
     
     debuginfo debug;
     
+    wire ndc;
+    
     mips mips_(
         .clk        (clk        ),
         .rst        (~resetn    ),
@@ -85,8 +87,6 @@ module mycpu_top(
     wire `W_DATA data_rdata  ;
     wire         data_addr_ok;
     wire         data_data_ok;
-    
-    wire ndc;
     
     sbus_to_cache bridge_cache(.rst(~resetn), .ibus(ibus.slave), .dbus(dbus.slave), .*);
     
