@@ -14,13 +14,12 @@ module memctl(
     
     assign dbus_en   = `IS_OPER_MM(oper);
     assign dbus_we   =  oper == `OPER_SB  | oper == `OPER_SH | oper == `OPER_SW;
-    assign dbus_size = (oper == `OPER_SB  |
-                        oper == `OPER_LB  |
-                        oper == `OPER_LBU ) ? 2'b00 : // 读写一个字节
+    assign dbus_size = (oper == `OPER_SW  |
+                        oper == `OPER_LW  ) ? 2'b10 : // 读写四个字节
                        (oper == `OPER_SH  |
                         oper == `OPER_LH  |
                         oper == `OPER_LHU ) ? 2'b01 : // 读写两个字节
-                                              2'b10 ; // 读写四个字节
+                                              2'b00 ; // 读写一个字节
     assign dbus_addr = source_addr;
     assign dbus_data = dbus_we ?  source_data : source_addr;
     

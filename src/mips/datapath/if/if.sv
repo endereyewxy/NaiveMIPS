@@ -10,10 +10,9 @@ module if_(
     input  logic `W_ADDR except_addr,
     input  logic         branch     ,
     input  logic `W_ADDR branch_addr, 
-    output logic         pc         ,
-    output logic `W_ADDR pc_addr    );
+    output logic `W_ADDR pc         );
     
-    pc pc_(clk, rst, stall, except, except_addr, branch, branch_addr, pc, pc_addr);
+    pc pc_(.*);
     
 endmodule
 

@@ -52,15 +52,21 @@ module mycpu_top(
     sbus ibus(clk);
     sbus dbus(clk);
     
+    logic ibus_update;
+    logic dbus_update;
+    
     debuginfo debug;
     
     mips mips_(
-        .clk       (clk       ),
-        .rst       (~resetn    ),
-        .hard_intr (int_       ),
-        .ibus_sbus (ibus.master),
-        .dbus_sbus (dbus.master),
-        .debug     (debug      ));
+        .clk        (clk        ),
+        .rst        (~resetn    ),
+        .ndc        (ndc        ),
+        .hard_intr  (int_       ),
+        .ibus_sbus  (ibus.master),
+        .dbus_sbus  (dbus.master),
+        .ibus_update(ibus_update),
+        .dbus_update(dbus_update),
+        .debug      (debug      ));
     
     wire         inst_req    ;
     wire         inst_wr     ;
@@ -71,19 +77,6 @@ module mycpu_top(
     wire         inst_addr_ok;
     wire         inst_data_ok;
     
-    sbus_to_sram_like bridge_ibus(
-        .clk              (clk         ),
-        .rst              (~resetn     ),
-        .sbus             (ibus.slave  ),
-        .sram_like_req    (inst_req    ),
-        .sram_like_wr     (inst_wr     ),
-        .sram_like_size   (inst_size   ),
-        .sram_like_addr   (inst_addr   ),
-        .sram_like_wdata  (inst_wdata  ),
-        .sram_like_rdata  (inst_rdata  ),
-        .sram_like_addr_ok(inst_addr_ok),
-        .sram_like_data_ok(inst_data_ok));
-    
     wire         data_req    ;
     wire         data_wr     ;
     wire [1:0]   data_size   ;
@@ -93,18 +86,9 @@ module mycpu_top(
     wire         data_addr_ok;
     wire         data_data_ok;
     
-    sbus_to_sram_like bridge_dbus(
-        .clk              (clk         ),
-        .rst              (~resetn     ),
-        .sbus             (dbus.slave  ),
-        .sram_like_req    (data_req    ),
-        .sram_like_wr     (data_wr     ),
-        .sram_like_size   (data_size   ),
-        .sram_like_addr   (data_addr   ),
-        .sram_like_wdata  (data_wdata  ),
-        .sram_like_rdata  (data_rdata  ),
-        .sram_like_addr_ok(data_addr_ok),
-        .sram_like_data_ok(data_data_ok));
+    wire ndc;
+    
+    sbus_to_cache bridge_cache(.rst(~resetn), .ibus(ibus.slave), .dbus(dbus.slave), .*);
     
     cpu_axi_interface bridge_axi(.*);
     

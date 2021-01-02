@@ -19,7 +19,7 @@ module cp0(
             regfile[0 ] <= 0           ;
             regfile[12] <= 32'h0000ff01;
             regfile[13] <= 0           ;
-            regfile[13][ 9: 0] <= 0    ;
+            regfile[14] <= 0           ;
         end else begin
             regfile[13][15:10]   <= hard_intr;
             if (cp0w.we) begin

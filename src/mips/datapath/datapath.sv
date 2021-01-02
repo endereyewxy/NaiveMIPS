@@ -3,84 +3,25 @@
 import includes::*;
 
 module datapath(
-    input       logic         clk       ,
-    input       logic         rst       ,
-    input       logic `W_INTV intr_vect ,  // ID
-    input       logic `W_ADDR er_epc    ,  // ID
-    sbus.master               ibus_sbus ,  // IF - ID
-    sbus.master               dbus_sbus ,  // MM - WB
-    output      reg_error     cp0w_error,  // MM
-    regf_r.master             cp0_rt    ,  // EX
-    regf_w.master             cp0_rd    ,  // EX
-    regf_r.master             rs        ,  // ID
-    regf_r.master             rt        ,  // ID
-    regf_w.master             rd        ,  // WB
-    output      debuginfo     debug     );
+    input       logic         clk        ,
+    input       logic         rst        ,
+    input       logic `W_INTV intr_vect  ,  // ID
+    input       logic `W_ADDR er_epc     ,  // ID
+    sbus.master               ibus_sbus  ,  // IF - ID
+    sbus.master               dbus_sbus  ,  // MM - WB
+    output      logic         ibus_update,
+    output      logic         dbus_update,
+    input       bus_error     ibus_error ,  // IF
+    input       bus_error     dbus_error ,  // MM
+    output      reg_error     cp0w_error ,  // MM
+    regf_r.master             cp0_rt     ,  // EX
+    regf_w.master             cp0_rd     ,  // EX
+    regf_r.master             rs         ,  // ID
+    regf_r.master             rt         ,  // ID
+    regf_w.master             rd         ,  // WB
+    output      debuginfo     debug      );
     
-    typedef struct packed {
-        logic         ibus_e ;
-        logic         slot   ;
-        logic `W_OPER oper   ;
-        logic `W_ADDR pc     ;
-        logic `W_REGF rd_regf;
-    } pipeinfo; // 贯穿整条流水线的信息
-    
-    // 信号定义
-    
-    // IF
-    
-    logic `W_ADDR if_pc  ;
-    logic         if_slot;
-    
-    // ID
-    
-    logic         id_if_id_stall;
-    logic         id_if_id_flush;
-    logic `W_TYPE id_ityp       ;
-    logic `W_FUNC id_func       ;
-    logic `W_DATA id_imme       ;
-    logic `W_REGF id_rs_regf    ;
-    logic `W_REGF id_rt_regf    ;
-    logic         id_branch     ;
-    logic `W_ADDR id_branch_addr;
-    logic         id_sy         ;
-    logic         id_bp         ;
-    logic         id_ri         ;
-    logic         id_er         ;
-    pipeinfo      id_pipeinfo   ;
-    
-    // EX
-    
-    logic         ex_alu_stall  ;
-    logic `W_TYPE ex_ityp       ;
-    logic `W_FUNC ex_func       ;
-    logic `W_DATA ex_imme       ;
-    logic `W_REGF ex_rs_regf    ;
-    logic `W_REGF ex_rt_regf    ;
-    logic `W_DATA ex_rs_data    ;
-    logic `W_DATA ex_rt_data    ;
-    logic `W_DATA ex_result     ;
-    logic `W_DATA ex_source_data;
-    pipeinfo      ex_pipeinfo   ;
-    exe_error     ex_exec_error ;
-    
-    // MM
-    
-    logic         mm_except     ;
-    logic `W_ADDR mm_except_addr;
-    logic `W_ADDR mm_source_addr;
-    logic `W_DATA mm_source_data;
-    pipeinfo      mm_pipeinfo   ;
-    exe_error     mm_exec_error ;
-    
-    // WB
-    
-    logic         wb_mm_wb_stall;
-    logic         wb_mm_wb_flush;
-    logic `W_DATA wb_rd_data_a  ;
-    pipeinfo      wb_pipeinfo   ;
-    
-    // control
+    // 控制与前推信号定义
     
     logic c_if_id_stall;
     logic c_if_id_flush;
@@ -93,8 +34,6 @@ module datapath(
     logic c_pc_stall   ;
     logic c_pc_flush   ;
     
-    // forward
-    
     logic         f_stall             ;
     logic         f_forward_id_rs     ;
     logic `W_DATA f_forward_id_rs_data;
@@ -105,100 +44,108 @@ module datapath(
     logic         f_forward_ex_rt     ;
     logic `W_DATA f_forward_ex_rt_data;
     
-    // 处理访存异常
+    // 不经过流水线寄存器的转接信号定义
     
-    bus_error dbus_error;
+    logic         id_branch     ;
+    logic `W_ADDR id_branch_addr;
+    logic         ex_alu_stall  ;
+    logic         mm_except     ;
+    logic `W_ADDR mm_except_addr;
     
-    logic ibus_e;
-    logic dbus_e;
-    
-    assign ibus_e = ((ibus_sbus.size == 2'b01 & ibus_sbus.addr[  0] != 0) |
-                     (ibus_sbus.size == 2'b10 & ibus_sbus.addr[1:0] != 0) ) & ibus_sbus.en;
-    assign dbus_e = ((dbus_sbus.size == 2'b01 & dbus_sbus.addr[  0] != 0) |
-                     (dbus_sbus.size == 2'b10 & dbus_sbus.addr[1:0] != 0) ) & dbus_sbus.en;
-    
-    assign dbus_error.adel = dbus_e & ~dbus_sbus.we;
-    assign dbus_error.ades = dbus_e &  dbus_sbus.we;
-    assign dbus_error.addr = dbus_sbus.addr;
-    
-    // 处理总线读：维持读出数据的停顿、刷新语义
-    
-    pipeline #(4) if_id_control_(
-        .clk  (clk ),
-        .rst  (rst ),
-        .stall(1'b0),
-        .flush(1'b0),
-        
-        .data_i({ c_if_id_stall,  c_if_id_flush,  c_mm_wb_stall,  c_mm_wb_flush}),
-        .data_o({id_if_id_stall, id_if_id_flush, wb_mm_wb_stall, wb_mm_wb_flush}));
-    
-    logic `W_DATA save_ibus;
-    logic `W_DATA save_dbus;
-    
-    pipeline #(32) delay_ibus_(
-        .clk  (clk           ),
-        .rst  (rst           ),
-        .stall(id_if_id_stall),
-        .flush(id_if_id_flush),
-        
-        .data_i(ibus_sbus.data_r),
-        .data_o(save_ibus       ));
-    
-    pipeline #(32) delay_dbus_(
-        .clk  (clk           ),
-        .rst  (rst           ),
-        .stall(wb_mm_wb_stall),
-        .flush(wb_mm_wb_flush),
-        
-        .data_i(dbus_sbus.data_r),
-        .data_o(save_dbus       ));
-    
-    logic `W_DATA real_ibus;
-    logic `W_DATA real_dbus;
-    assign        real_ibus = id_if_id_flush ? 32'h0 : id_if_id_stall ? save_ibus : ibus_sbus.data_r;
-    assign        real_dbus = wb_mm_wb_flush ? 32'h0 : wb_mm_wb_stall ? save_dbus : dbus_sbus.data_r;
+    logic ibus_en;
+    logic dbus_en;
+    logic dbus_vd;
     
     // 流水线间寄存器
     
-    pipeline #(34) if_id_(
-        .clk  (clk          ),
-        .rst  (rst          ),
-        .stall(c_if_id_stall),
-        .flush(c_if_id_flush),
-        
-        .data_i({if_pc         , if_slot         ,             ibus_e}),
-        .data_o({id_pipeinfo.pc, id_pipeinfo.slot, id_pipeinfo.ibus_e}));
+    typedef struct packed {
+        logic `W_ADDR pc        ;
+        logic         slot      ;
+        bus_error     ibus_error;
+    } if_id_packet;
     
-    pipeline #(200) id_ex_(
-        .clk  (clk          ),
-        .rst  (rst          ),
-        .stall(c_id_ex_stall),
-        .flush(c_id_ex_flush),
-        
-        .data_i({id_ityp, id_func, id_imme, id_rs_regf, id_rt_regf, rs.data   , rt.data   , id_pipeinfo, intr_vect              , id_sy           , id_bp           , id_ri           , id_er           , er_epc              }),
-        .data_o({ex_ityp, ex_func, ex_imme, ex_rs_regf, ex_rt_regf, ex_rs_data, ex_rt_data, ex_pipeinfo, ex_exec_error.intr_vect, ex_exec_error.sy, ex_exec_error.bp, ex_exec_error.ri, ex_exec_error.er, ex_exec_error.er_epc}));
+    typedef struct packed {
+        logic `W_ADDR pc        ;
+        logic         slot      ;
+        logic `W_TYPE ityp      ;
+        logic `W_OPER oper      ;
+        logic `W_FUNC func      ;
+        logic `W_DATA imme      ;
+        logic `W_REGF rs_regf   ;
+        logic `W_DATA rs_data   ;
+        logic `W_REGF rt_regf   ;
+        logic `W_DATA rt_data   ;
+        logic `W_REGF rd_regf   ;
+        logic `W_INTV intr_vect ;
+        logic         sy        ;
+        logic         bp        ;
+        logic         ri        ;
+        logic         er        ;
+        logic `W_ADDR er_epc    ;
+        bus_error     ibus_error;
+    } id_ex_packet;
     
-    pipeline #(153) ex_mm_(
-        .clk  (clk          ),
-        .rst  (rst          ),
-        .stall(c_ex_mm_stall),
-        .flush(c_ex_mm_flush),
-        
-        .data_i({ex_pipeinfo, ex_exec_error, ex_result     , ex_source_data}),
-        .data_o({mm_pipeinfo, mm_exec_error, mm_source_addr, mm_source_data}));
+    typedef struct packed {
+        logic `W_ADDR pc         ;
+        logic         slot       ;
+        logic `W_OPER oper       ;
+        logic `W_REGF rd_regf    ;
+        logic `W_ADDR source_addr;
+        logic `W_DATA source_data;
+        exe_error     exec_error ;
+        bus_error     ibus_error ;
+    } ex_mm_packet;
     
-    pipeline #(76) mm_wb_(
-        .clk  (clk          ),
-        .rst  (rst          ),
-        .stall(c_mm_wb_stall),
-        .flush(c_mm_wb_flush),
-        
-        .data_i({mm_pipeinfo, dbus_sbus.data_w}),
-        .data_o({wb_pipeinfo, wb_rd_data_a    }));
+    typedef struct packed {
+        logic `W_ADDR pc         ;
+        logic `W_OPER oper       ;
+        logic `W_REGF rd_regf    ;
+        logic `W_DATA source_addr;
+    } mm_wb_packet;
+    
+    if_id_packet if_id_i;
+    if_id_packet if_id_o;
+    id_ex_packet id_ex_i;
+    id_ex_packet id_ex_o;
+    ex_mm_packet ex_mm_i;
+    ex_mm_packet ex_mm_o;
+    mm_wb_packet mm_wb_i;
+    mm_wb_packet mm_wb_o;
+    
+    pipeline #(if_id_packet) if_id_(.clk(clk), .rst(rst), .stall(c_if_id_stall), .flush(c_if_id_flush), .data_i(if_id_i), .data_o(if_id_o));
+    pipeline #(id_ex_packet) id_ex_(.clk(clk), .rst(rst), .stall(c_id_ex_stall), .flush(c_id_ex_flush), .data_i(id_ex_i), .data_o(id_ex_o));
+    pipeline #(ex_mm_packet) ex_mm_(.clk(clk), .rst(rst), .stall(c_ex_mm_stall), .flush(c_ex_mm_flush), .data_i(ex_mm_i), .data_o(ex_mm_o));
+    pipeline #(mm_wb_packet) mm_wb_(.clk(clk), .rst(rst), .stall(c_mm_wb_stall), .flush(c_mm_wb_flush), .data_i(mm_wb_i), .data_o(mm_wb_o));
+    
+    assign if_id_i.ibus_error = ibus_error;
+    
+    assign id_ex_i.pc         = if_id_o.pc;
+    assign id_ex_i.slot       = if_id_o.slot;
+    assign id_ex_i.rs_data    = rs.data;
+    assign id_ex_i.rt_data    = rt.data;
+    assign id_ex_i.intr_vect  = intr_vect;
+    assign id_ex_i.er_epc     = er_epc;
+    assign id_ex_i.ibus_error = if_id_o.ibus_error;
+    
+    assign ex_mm_i.pc          = id_ex_o.pc;
+    assign ex_mm_i.slot        = id_ex_o.slot;
+    assign ex_mm_i.oper        = id_ex_o.oper;
+    assign ex_mm_i.rd_regf     = id_ex_o.rd_regf;
+    assign ex_mm_i.ibus_error  = id_ex_o.ibus_error;
+    
+    assign ex_mm_i.exec_error.intr_vect = id_ex_o.intr_vect;
+    assign ex_mm_i.exec_error.sy        = id_ex_o.sy;
+    assign ex_mm_i.exec_error.bp        = id_ex_o.bp;
+    assign ex_mm_i.exec_error.ri        = id_ex_o.ri;
+    assign ex_mm_i.exec_error.er        = id_ex_o.er;
+    assign ex_mm_i.exec_error.er_epc    = id_ex_o.er_epc;
+    
+    assign mm_wb_i.pc          = ex_mm_o.pc;
+    assign mm_wb_i.oper        = ex_mm_o.oper;
+    assign mm_wb_i.rd_regf     = ex_mm_o.rd_regf;
+    assign mm_wb_i.source_addr = ex_mm_o.source_addr;
     
     // 模块实例化
-    
-    // IF
     
     if_ if__(
         .clk        (clk           ),
@@ -208,108 +155,85 @@ module datapath(
         .except_addr(mm_except_addr),
         .branch     (id_branch     ),
         .branch_addr(id_branch_addr),
-        .pc         (ibus_sbus.en  ),
-        .pc_addr    (if_pc         ));
+        .pc         (if_id_i.pc    ));
     
-    assign ibus_sbus.we   = 0;
-    assign ibus_sbus.size = 2'b10;
-    assign ibus_sbus.addr = if_pc;
+    // FIXME
+    logic `W_DATA flushed_inst;
+    assign        flushed_inst = if_id_o.pc == 32'h0 ? 32'h0 : ibus_sbus.data_r;
     
-    // ID
     
     id id_(
-        .pc             (id_pipeinfo.pc      ),
-        .inst           (real_ibus           ),
+        .pc             (if_id_o.pc          ),
+        .inst           (flushed_inst        ),
         .rs_data        (rs.data             ),
         .rt_data        (rt.data             ),
         .forward_rs     (f_forward_id_rs     ),
         .forward_rs_data(f_forward_id_rs_data),
         .forward_rt     (f_forward_id_rt     ),
         .forward_rt_data(f_forward_id_rt_data),
-        .ityp           (id_ityp             ),
-        .oper           (id_pipeinfo.oper    ),
-        .func           (id_func             ),
-        .imme           (id_imme             ),
-        .rs_regf        (id_rs_regf          ),
-        .rt_regf        (id_rt_regf          ),
-        .rd_regf        (id_pipeinfo.rd_regf ),
+        .ityp           (id_ex_i.ityp        ),
+        .oper           (id_ex_i.oper        ),
+        .func           (id_ex_i.func        ),
+        .imme           (id_ex_i.imme        ),
+        .rs_regf        (id_ex_i.rs_regf     ),
+        .rt_regf        (id_ex_i.rt_regf     ),
+        .rd_regf        (id_ex_i.rd_regf     ),
         .branch         (id_branch           ),
         .branch_addr    (id_branch_addr      ),
-        .sy             (id_sy               ),
-        .bp             (id_bp               ),
-        .ri             (id_ri               ),
-        .er             (id_er               ));
+        .sy             (id_ex_i.sy          ),
+        .bp             (id_ex_i.bp          ),
+        .ri             (id_ex_i.ri          ),
+        .er             (id_ex_i.er          ));
     
-    // 添加延迟槽标记
-    assign if_slot = `IS_OPER_JB(id_pipeinfo.oper);
-    
-    assign rs.regf = id_rs_regf;
-    assign rt.regf = id_rt_regf;
-    
-    // EX
+    assign if_id_i.slot = `IS_OPER_JB(id_ex_i.oper); // 添加延迟槽标记
     
     ex ex_(
-        .clk            (clk                 ),
-        .rst            (rst                 ),
-        .reg_stall      (c_id_ex_stall       ),
-        .reg_flush      (c_id_ex_flush       ),
-        .alu_stall      (ex_alu_stall        ),
-        .ityp           (ex_ityp             ),
-        .oper           (ex_pipeinfo.oper    ),
-        .func           (ex_func             ),
-        .imme           (ex_imme             ),
-        .forward_rs     (f_forward_ex_rs     ),
-        .forward_rs_data(f_forward_ex_rs_data),
-        .forward_rt     (f_forward_ex_rt     ),
-        .forward_rt_data(f_forward_ex_rt_data),
-        .rs_data        (ex_rs_data          ),
-        .rt_data        (ex_rt_data          ),
-        .cp0_rt_data    (cp0_rt.data         ),
-        .cp0_rd_data    (cp0_rd.data         ),
-        .result         (ex_result           ),
-        .ov             (ex_exec_error.ov    ),
-        .source_data    (ex_source_data      ));
-    
-    assign cp0_rt.regf = ex_rt_regf;
-    assign cp0_rd.regf = ex_pipeinfo.oper == `OPER_MTC0 ? ex_pipeinfo.rd_regf : 0;
-    
-    // MM
-    
-    bus_error ibus_error;
-    
-    assign ibus_error.adel = mm_pipeinfo.ibus_e;
-    assign ibus_error.ades = 1'b0;
-    assign ibus_error.addr = mm_pipeinfo.pc;
+        .clk            (clk                   ),
+        .rst            (rst                   ),
+        .reg_stall      (c_id_ex_stall         ),
+        .reg_flush      (c_id_ex_flush         ),
+        .alu_stall      (ex_alu_stall          ),
+        .ityp           (id_ex_o.ityp          ),
+        .oper           (id_ex_o.oper          ),
+        .func           (id_ex_o.func          ),
+        .imme           (id_ex_o.imme          ),
+        .forward_rs     (f_forward_ex_rs       ),
+        .forward_rs_data(f_forward_ex_rs_data  ),
+        .forward_rt     (f_forward_ex_rt       ),
+        .forward_rt_data(f_forward_ex_rt_data  ),
+        .rs_data        (id_ex_o.rs_data       ),
+        .rt_data        (id_ex_o.rt_data       ),
+        .cp0_rt_data    (cp0_rt.data           ),
+        .cp0_rd_data    (cp0_rd.data           ),
+        .result         (ex_mm_i.source_addr   ),
+        .source_data    (ex_mm_i.source_data   ),
+        .ov             (ex_mm_i.exec_error.ov));
     
     mm mm_(
-        .oper       (mm_pipeinfo.oper),
-        .slot       (mm_pipeinfo.slot),
-        .pc         (mm_pipeinfo.pc  ),
-        .ibus_error (ibus_error      ),
-        .dbus_error (dbus_error      ),
-        .exec_error (mm_exec_error   ),
-        .cp0w_error (cp0w_error      ),
-        .except     (mm_except       ),
-        .except_addr(mm_except_addr  ),
-        .source_addr(mm_source_addr  ),
-        .source_data(mm_source_data  ),
-        .dbus_en    (dbus_sbus.en    ),
-        .dbus_we    (dbus_sbus.we    ),
-        .dbus_size  (dbus_sbus.size  ),
-        .dbus_addr  (dbus_sbus.addr  ),
-        .dbus_data  (dbus_sbus.data_w));
-    
-    // WB
+        .pc         (ex_mm_o.pc         ),
+        .oper       (ex_mm_o.oper       ),
+        .slot       (ex_mm_o.slot       ),
+        .ibus_error (ex_mm_o.ibus_error ),
+        .dbus_error (dbus_error         ),
+        .exec_error (ex_mm_o.exec_error ),
+        .cp0w_error (cp0w_error         ),
+        .except     (mm_except          ),
+        .except_addr(mm_except_addr     ),
+        .source_addr(ex_mm_o.source_addr),
+        .source_data(ex_mm_o.source_data),
+        .dbus_en    (dbus_vd            ),
+        .dbus_we    (dbus_sbus.we       ),
+        .dbus_size  (dbus_sbus.size     ),
+        .dbus_addr  (dbus_sbus.addr     ),
+        .dbus_data  (dbus_sbus.data_w   ));
     
     wb wb_(
-        .oper       (wb_pipeinfo.oper   ),
-        .rd_regf    (wb_pipeinfo.rd_regf),
-        .rd_data_a  (wb_rd_data_a       ),
-        .rd_data_b  (real_dbus          ),
-        .pc         (wb_pipeinfo.pc     ),
+        .oper       (mm_wb_o.oper       ),
+        .rd_regf    (mm_wb_o.rd_regf    ),
+        .rd_data_a  (mm_wb_o.source_addr),
+        .rd_data_b  (dbus_sbus.data_r   ),
+        .pc         (mm_wb_o.pc         ),
         .rd         (rd                 ));
-    
-    // control
     
     control control_(
         .ibus       (ibus_sbus.stall),
@@ -328,21 +252,19 @@ module datapath(
         .pc_stall   (c_pc_stall     ),
         .pc_flush   (c_pc_flush     ));
     
-    // forward
-    
     forward forward_(
-        .oper_id           (id_pipeinfo.oper    ),
-        .oper_ex           (ex_pipeinfo.oper    ),
-        .from_ex_regf      (ex_pipeinfo.rd_regf ),
-        .from_ex_data      (ex_result           ),
-        .from_mm_regf      (mm_pipeinfo.rd_regf ),
+        .oper_id           (id_ex_i.oper        ),
+        .oper_ex           (id_ex_o.oper        ),
+        .from_ex_regf      (id_ex_o.rd_regf     ),
+        .from_ex_data      (ex_mm_i.source_addr ),
+        .from_mm_regf      (ex_mm_o.rd_regf     ),
         .from_mm_data      (dbus_sbus.data_w    ),
-        .from_wb_regf      (wb_pipeinfo.rd_regf ),
+        .from_wb_regf      (mm_wb_o.rd_regf     ),
         .from_wb_data      (rd.data             ),
-        .into_id_rs        (id_rs_regf          ),
-        .into_id_rt        (id_rt_regf          ),
-        .into_ex_rs        (ex_rs_regf          ),
-        .into_ex_rt        (ex_rt_regf          ),
+        .into_id_rs        (id_ex_i.rs_regf     ),
+        .into_id_rt        (id_ex_i.rt_regf     ),
+        .into_ex_rs        (id_ex_o.rs_regf     ),
+        .into_ex_rt        (id_ex_o.rt_regf     ),
         .stall             (f_stall             ),
         .forward_id_rs     (f_forward_id_rs     ),
         .forward_id_rs_data(f_forward_id_rs_data),
@@ -353,7 +275,44 @@ module datapath(
         .forward_ex_rt     (f_forward_ex_rt     ),
         .forward_ex_rt_data(f_forward_ex_rt_data));
     
-    assign debug = {wb_pipeinfo.pc, {4{rd.regf != 0 & ~wb_mm_wb_stall & ~wb_mm_wb_flush}}, rd.regf, rd.data};
+    // 处理剩余总线以及寄存器接口
+    
+    always @(posedge clk) begin
+        ibus_en <= ~   c_pc_stall;
+        dbus_en <= ~c_ex_mm_stall;
+    end
+    
+    assign ibus_sbus.en     = (~rst & ibus_en) | mm_except;
+    assign ibus_sbus.we     = 1'b0;
+    assign ibus_sbus.addr   = if_id_i.pc;
+    assign ibus_sbus.size   = 2'b10;
+    assign ibus_sbus.data_w = 32'h0;
+    
+    assign dbus_sbus.en = ~rst & dbus_vd & dbus_en;
+    
+    assign ibus_update = ~   c_pc_stall;
+    assign dbus_update = ~c_mm_wb_stall;
+    
+    assign cp0_rt.regf =                              id_ex_o.rt_regf;
+    assign cp0_rd.regf = id_ex_o.oper == `OPER_MTC0 ? id_ex_o.rd_regf : 0;
+    
+    assign rs.regf = id_ex_i.rs_regf;
+    assign rt.regf = id_ex_i.rt_regf;
+    
+    // 处理调试信息：在停顿和刷新时不进行输出
+    
+    logic debug_enable;
+    
+    pipeline #(logic) if_id_control_(
+        .clk  (clk ),
+        .rst  (rst ),
+        .stall(1'b0),
+        .flush(1'b0),
+        
+        .data_i(~c_mm_wb_stall & ~c_mm_wb_flush),
+        .data_o(debug_enable                   ));
+    
+    assign debug = {mm_wb_o.pc, {4{rd.regf != 0 & debug_enable}}, rd.regf, rd.data};
     
 endmodule
 
