@@ -11,11 +11,12 @@ package includes;
 `define W_EXCC [4 :0]
 `define W_INTV [7 :0]
 `define W_HINT [5 :0]
-`define W_CTAG [20:0]
-`define W_CIDX [ 8:0]
+`define W_CTAG [19:0]
+`define W_CIDX [ 9:0]
 `define W_COFF [ 1:0]
+`define W_META [21:0]
 
-`define CACHE_DEPTH 512
+`define CACHE_DEPTH 1024
 
 `define TYPE_R 2'b00
 `define TYPE_I 2'b01
