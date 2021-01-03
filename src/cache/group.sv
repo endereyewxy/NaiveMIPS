@@ -63,8 +63,8 @@ module group(
     
     logic  ctag_we;
     logic  data_we;
-    assign ctag_we = ~clk & we & wp & rep;
-    assign data_we = ~clk & we & (wp ? rep : hit);
+    assign ctag_we = we & wp & rep;
+    assign data_we = we & (wp ? rep : hit);
     
     cache_ram_ctag cache_ram_ctag_(
         .clka (clk     ),
@@ -73,9 +73,11 @@ module group(
         .dina (addr_tag),
         
         .clkb (~clk    ),
-        .enb  (1'b1),
+        .enb  (~ctag_we), // FIXME
         .addrb(addr_idx),
         .doutb(ctag_r  ));
+    
+    logic `W_DATA data_x;
     
     cache_ram_data cache_ram_data_(
         .clka (clk                                ),
@@ -84,9 +86,12 @@ module group(
         .dina (wm ? data_w : data_a               ),  // 写替换时写整字，写数据时写对齐字
         
         .clkb (~clk    ),
-        .enb  (1'b1),
+        .enb  (~data_we), // FIXME
         .addrb(addr_idx),
-        .doutb(data_r  ));
+        .doutb(data_x  ));
+    
+    always @(*)
+        if (valid[addr_idx]) data_r = data_x; else data_r = 32'h0;
     
     // 维护是否命中
     
