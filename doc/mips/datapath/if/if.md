@@ -8,4 +8,3 @@
 | branch      | ID.A.1 | 输入 |   1    | 分支跳转目标地址的有效性 |
 | branch_addr | ID.A.1 | 输入 | W_ADDR | 分支跳转目标地址         |
 | pc          | IF.A.1 | 输出 |   1    | 指令地址读使能           |
-| pc_addr     | IF.A.1 | 输出 | W_ADDR | 指令地址                 |

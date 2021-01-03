@@ -12,7 +12,7 @@
 | ex_mm_stall |        | 输出 |  1   | EX-MM寄存器停顿信号    |
 | ex_mm_flush |        | 输出 |  1   | EX-MM寄存器刷新信号    |
 | mm_wb_stall |        | 输出 |  1   | MM-WB寄存器停顿信号    |
-| mm_wb_stall |        | 输出 |  1   | MM-WB寄存器刷新信号    |
+| mm_wb_flush |        | 输出 |  1   | MM-WB寄存器刷新信号    |
 | pc_stall    | IF.C.1 | 输出 |  1   | PC寄存器的停顿信号     |
 | pc_flush    | IF.C.1 | 输出 |  1   | PC寄存器的刷新信号     |
 
