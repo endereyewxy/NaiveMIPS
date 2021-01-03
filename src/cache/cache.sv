@@ -88,7 +88,7 @@ module cache(
     always @(posedge clk) begin
         if (rst)
             c_lru <= 0;
-        else if (hit & state != OK)
+        else if (hit)
             lru <= grp_hit[0];
     end
     
@@ -125,7 +125,7 @@ module cache(
     assign we_dir =  state == OK & sbus_en & sbus_we & hit;                 // 直接写命中
     logic  we_new;
     assign we_new = (state == OK & sbus_en & sbus_we & ~hit & ~dirty    ) | // 写未命中但无需写回
-                    (state == WR &           sbus_we & sram_like_data_ok) ; // 读写未命中，写回完成之后
+                    (state == WR &           sbus_we & sram_like_data_ok) ; // 写未命中，写回完成之后
     
     assign we = we_mem | we_dir | we_new;
     assign wp = we_mem | we_new;
@@ -136,12 +136,18 @@ module cache(
     
     // 处理缓存组的读逻辑
     
+    logic `W_DATA sram_like_rdata_s;
+    assign        sram_like_rdata_s = sbus_addr[1:0] == 2'b00 ?         sram_like_rdata         : // FIXME 与 group 中部分代码重复
+                                      sbus_addr[1:0] == 2'b01 ? { 8'h0, sram_like_rdata[31: 8]} :
+                                      sbus_addr[1:0] == 2'b10 ? {16'h0, sram_like_rdata[31:16]} :
+                                                                {24'h0, sram_like_rdata[31:24]} ;
+    
     logic         data_update;
     logic `W_DATA data_stored;
     logic `W_DATA data_pushed;
     assign        data_update = (state == OK & sbus_en & ~sbus_we & hit) | // 读直接命中
                                 (state == RD & sram_like_data_ok       ) ; // 完成替换时
-    assign        data_pushed =  state == OK ? grp_data_s[grp_hit[1]] : sram_like_rdata;
+    assign        data_pushed =  state == OK ? grp_data_s[grp_hit[1]] : sram_like_rdata_s;
     
     always @(posedge clk)
         if (rst) data_stored <= 0; else if (data_update) data_stored <= data_pushed;
@@ -160,7 +166,7 @@ module cache(
     
     logic  sbus_posedge;
     assign sbus_posedge = (state == OK & sbus_en & (need_wr | need_rd)) | // OK -> WR, OK -> RD
-                          (state == WR &                      need_rd ) ; // WR -> RD
+                          (state == WR & sram_like_data_ok &  need_rd ) ; // WR -> RD
     
     logic req;
     
@@ -171,9 +177,9 @@ module cache(
     
     // 连接总线接口
     
-    assign sram_like_wr    = need_wr;
+    assign sram_like_wr    = (state == OK & need_wr) | (state == WR & req);
     assign sram_like_size  = 2'b10;
-    assign sram_like_addr  = need_wr ? {rptag, sbus_addr[11:2], 2'b00} : {sbus_addr[31:2], 2'b00};
+    assign sram_like_addr  = sram_like_wr ? {rptag, sbus_addr[11:2], 2'b00} : {sbus_addr[31:2], 2'b00};
     assign sram_like_wdata = wdata;
     
 endmodule

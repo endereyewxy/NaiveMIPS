@@ -63,8 +63,8 @@ module group(
     
     logic  ctag_we;
     logic  data_we;
-    assign ctag_we = we & wp & rep;
-    assign data_we = we & (wp ? rep : hit);
+    assign ctag_we = ~clk & we & wp & rep;
+    assign data_we = ~clk & we & (wp ? rep : hit);
     
     cache_ram_ctag cache_ram_ctag_(
         .clka (clk     ),
@@ -73,7 +73,7 @@ module group(
         .dina (addr_tag),
         
         .clkb (~clk    ),
-        .enb  (~ctag_we),
+        .enb  (1'b1),
         .addrb(addr_idx),
         .doutb(ctag_r  ));
     
@@ -84,7 +84,7 @@ module group(
         .dina (wm ? data_w : data_a               ),  // 写替换时写整字，写数据时写对齐字
         
         .clkb (~clk    ),
-        .enb  (~data_we),
+        .enb  (1'b1),
         .addrb(addr_idx),
         .doutb(data_r  ));
     
