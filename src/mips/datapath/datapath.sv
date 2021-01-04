@@ -204,6 +204,7 @@ module datapath(
         .rs_data        (id_ex_o.rs_data       ),
         .rt_data        (id_ex_o.rt_data       ),
         .cp0_rt_data    (cp0_rt.data           ),
+        .cp0_rd_we      (cp0_rd.we             ),
         .cp0_rd_data    (cp0_rd.data           ),
         .result         (ex_mm_i.source_addr   ),
         .source_data    (ex_mm_i.source_data   ),

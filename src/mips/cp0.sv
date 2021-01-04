@@ -16,11 +16,11 @@ module cp0(
     
     always @(posedge clk) begin
         if (rst) begin
-            regfile[0 ] <= 0           ;
+            regfile     <= 0           ;
             regfile[12] <= 32'h0000ff01;
-            regfile[13] <= 0           ;
-            regfile[14] <= 0           ;
+            regfile[16] <= 32'h00000800;
         end else begin
+            regfile[ 9]          <= regfile[ 9] + 32'h1;
             regfile[13][15:10]   <= hard_intr;
             if (cp0w.we) begin
                 regfile[13][31 ] <= cp0w.bd ;
@@ -28,7 +28,7 @@ module cp0(
                 regfile[13][6:2] <= cp0w.exc;
                 regfile[14]      <= cp0w.epc;
                 regfile[ 8]      <= cp0w.bva;
-            end else if (rd.regf != 0) begin
+            end else if (rd.we) begin
                 regfile[rd.regf] <= rd.data ;
             end
         end
@@ -51,7 +51,7 @@ module cp0(
             (cp0w.we & rt.regf == 14          ) ? cp0w.epc                                                 :
             (cp0w.we & rt.regf == 12          ) ? {regfile[12][31:2], cp0w.exl, regfile[12][0]}            :
             (cp0w.we & rt.regf == 13          ) ? {cp0w.bd, regfile[13][30:7], cp0w.exc, regfile[13][1:0]} :
-            (rt.regf == rd.regf & rd.regf != 0) ? rd.data                                                  : regfile[rt.regf];
+            (rt.regf == rd.regf & rd.we       ) ? rd.data                                                  : regfile[rt.regf];
     
 endmodule
 

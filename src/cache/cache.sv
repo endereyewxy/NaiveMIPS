@@ -42,7 +42,6 @@ module cache(
     logic         grp_need   [1:0];
     logic `W_CTAG grp_ctag   [1:0];
     logic `W_DATA grp_data_r [1:0];
-    logic `W_DATA grp_data_s [1:0];
     logic `W_DATA grp_data_w      ;
     
     logic  hit;
@@ -64,8 +63,7 @@ module cache(
                 .data_w(grp_data_w   ),
                 .need_r(grp_need  [i]),
                 .ctag_r(grp_ctag  [i]),
-                .data_r(grp_data_r[i]),
-                .data_s(grp_data_s[i]));
+                .data_r(grp_data_r[i]));
         end
     endgenerate
     
@@ -88,8 +86,8 @@ module cache(
     always @(posedge clk) begin
         if (rst)
             c_lru <= 0;
-        else if (hit)
-            lru <= grp_hit[0];
+        else if (state == OK & sbus_en)
+            c_lru[sbus_addr[11:2]] <= hit ? grp_hit[0] : ~c_lru[sbus_addr[11:2]];
     end
     
     // 其它准备工作
@@ -136,25 +134,25 @@ module cache(
     
     // 处理缓存组的读逻辑
     
-    logic `W_DATA sram_like_rdata_s;
-    assign        sram_like_rdata_s = sbus_addr[1:0] == 2'b00 ?         sram_like_rdata         : // FIXME 与 group 中部分代码重复
-                                      sbus_addr[1:0] == 2'b01 ? { 8'h0, sram_like_rdata[31: 8]} :
-                                      sbus_addr[1:0] == 2'b10 ? {16'h0, sram_like_rdata[31:16]} :
-                                                                {24'h0, sram_like_rdata[31:24]} ;
     
     logic         data_update;
     logic `W_DATA data_stored;
     logic `W_DATA data_pushed;
     assign        data_update = (state == OK & sbus_en & ~sbus_we & hit) | // 读直接命中
                                 (state == RD & sram_like_data_ok       ) ; // 完成替换时
-    assign        data_pushed =  state == OK ? grp_data_s[grp_hit[1]] : sram_like_rdata_s;
+    assign        data_pushed =  state == OK ? grp_data_r[grp_hit[1]] : sram_like_rdata;
+    logic `W_DATA data_tosbus;
+    assign        data_tosbus = sbus_addr[1:0] == 2'b00 ?         data_pushed         :
+                                sbus_addr[1:0] == 2'b01 ? { 8'h0, data_pushed[31: 8]} :
+                                sbus_addr[1:0] == 2'b10 ? {16'h0, data_pushed[31:16]} :
+                                                          {24'h0, data_pushed[31:24]} ;
     
     always @(posedge clk)
-        if (rst) data_stored <= 0; else if (data_update) data_stored <= data_pushed;
+        if (rst) data_stored <= 0; else if (data_update) data_stored <= data_tosbus;
     
     
     always @(posedge clk)
-        if (sbus_update) sbus_data_r <= data_update ? data_pushed : data_stored;
+        if (sbus_update) sbus_data_r <= data_update ? data_tosbus : data_stored;
     
     // 处理停顿逻辑
     

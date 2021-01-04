@@ -133,19 +133,23 @@ interface regf_r(input logic clk);
 endinterface
 
 interface regf_w(input logic clk);
+    logic         we  ;
     logic `W_REGF regf;
     logic `W_DATA data;
     
     clocking cb @(posedge clk);
+        input we  ;
         input regf;
         input data;
     endclocking
     
     modport master(
+        output we  ,
         output regf,
         output data);
     
     modport slave(
+        input we  ,
         input regf,
         input data);
     

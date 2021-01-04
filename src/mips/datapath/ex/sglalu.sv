@@ -6,6 +6,7 @@ module sglalu(
     input  logic `W_OPER oper         ,
     input  logic `W_FUNC func         ,
     input  logic `W_DATA cp0_rt_data  ,
+    output logic         cp0_rd_we    ,
     output logic `W_DATA cp0_rd_data  ,
     input  logic `W_DATA source_a     ,
     input  logic `W_DATA source_b     ,
@@ -30,6 +31,8 @@ module sglalu(
                            ( source_a[31] &  source_b[31]) ? ((source_a < source_b) ? {31'b0, 1'b1} : 32'b0) :
                            (~source_a[31] &  source_b[31]) ? 32'b0                                           :
                            ( source_a     <  source_b    ) ? {31'b0, 1'b1}                                   : 32'b0;
+    
+    assign cp0_rd_we     = oper == `OPER_MTC0;
     
     assign cp0_rd_data   =  source_b;
     

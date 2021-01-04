@@ -20,8 +20,7 @@ module group(
     
     output logic         need_r  ,  // dirty
     output logic `W_CTAG ctag_r  ,
-    output logic `W_DATA data_r  ,
-    output logic `W_DATA data_s  );
+    output logic `W_DATA data_r  );
     
     // 分离地址
     
@@ -59,6 +58,9 @@ module group(
         end
     end
     
+    always @(negedge clk)
+        need_r <= dirty[addr_idx]; // 保持脏位和标签信息的读取时序一致
+    
     // 使用 RAM 维护标签信息和数据块
     
     logic  ctag_we;
@@ -73,7 +75,7 @@ module group(
         .dina (addr_tag),
         
         .clkb (~clk    ),
-        .enb  (~ctag_we), // FIXME
+        .enb  (~ctag_we),
         .addrb(addr_idx),
         .doutb(ctag_r  ));
     
@@ -86,7 +88,7 @@ module group(
         .dina (wm ? data_w : data_a               ),  // 写替换时写整字，写数据时写对齐字
         
         .clkb (~clk    ),
-        .enb  (~data_we), // FIXME
+        .enb  (~data_we),
         .addrb(addr_idx),
         .doutb(data_x  ));
     
@@ -101,17 +103,6 @@ module group(
         else
             hit = 1'b0;
     end
-    
-    // 维护是否脏
-    
-    assign need_r = dirty[addr_idx];
-    
-    // 维护移位之后的，能直接返回给 CPU 的读出数据
-    
-    assign data_s = addr_off == 2'b00 ?         data_r         :
-                    addr_off == 2'b01 ? { 8'h0, data_r[31: 8]} :
-                    addr_off == 2'b10 ? {16'h0, data_r[31:16]} :
-                                        {24'h0, data_r[31:24]} ;
     
 endmodule
 
