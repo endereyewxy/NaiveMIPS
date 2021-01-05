@@ -66,7 +66,7 @@ module cache(
                     if (now_en & ~cpu_pause) begin
                         if (~hit &  drt)
                             {state, mem_en} <= {WMEM, 1'b1};
-                        if (~hit & ~drt & ~now_we)
+                        if (~hit & ~drt & (~now_we | now_mask != 4'hf))
                             {state, mem_en} <= {READ, 1'b1};
                     end
                 WMEM:
@@ -95,12 +95,12 @@ module cache(
     
     assign cpu_data_r = cur_data;
     
-    assign cpu_stall = now_en & (state != IDLE | (~hit & (~now_we | drt)));
+    assign cpu_stall = state != IDLE | (now_en & ~hit & (~now_we | now_mask != 4'hf | drt));
     
     logic ram_we;
     logic ram_st;
     
-    assign ram_we = state == IDLE ? (now_en & now_we & (hit | ~drt)) : mem_data_o;
+    assign ram_we = state == IDLE ? (now_en & now_we) : mem_data_o;
     assign ram_st = cpu_stall | cpu_pause;
     
     logic `W_CDEP valid;
@@ -120,7 +120,7 @@ module cache(
     assign drt = dirty[now_addr_idx];
     
     cache_ram_ctag ram_ctag(
-        .clka(clk),
+        .clka(~clk),
         .clkb(clk),
         
         .addra(now_addr_idx),
@@ -131,7 +131,7 @@ module cache(
         .doutb(cur_ctag                            ));
     
     cache_ram_data ram_data(
-        .clka(clk),
+        .clka(~clk),
         .clkb(clk),
         
         .addra(now_addr_idx                                   ),
