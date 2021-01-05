@@ -64,18 +64,26 @@ module cache(
             case (state)
                 IDLE:
                     if (now_en & ~cpu_pause) begin
-                        if (~hit &  drt)
-                            {state, mem_en} <= {WMEM, 1'b1};
-                        if (~hit & ~drt & (~now_we | now_mask != 4'hf))
-                            {state, mem_en} <= {READ, 1'b1};
+                        if (~hit &  drt) begin
+                            state      <= WMEM;
+                            mem_en     <= 1'b1;
+                            mem_addr   <= {cur_ctag, now_addr_idx, 2'b00};
+                            mem_data_w <= cur_data;
+                        end
+                        if (~hit & ~drt & (~now_we | now_mask != 4'hf)) begin
+                            state    <= READ;
+                            mem_en   <= 1'b1;
+                            mem_addr <= {now_addr_tag, now_addr_idx, 2'b00};
+                        end
                     end
                 WMEM:
                     begin
                         if (mem_addr_o)
                             mem_en <= 1'b0;
                         if (mem_data_o) begin
-                            mem_en <= ~now_we;
-                            state  <=  now_we ? IDLE : READ;
+                            state    <=  now_we ? IDLE : READ;
+                            mem_en   <= ~now_we;
+                            mem_addr <=  {now_addr_tag, now_addr_idx, 2'b00};
                         end
                     end
                 READ:
@@ -90,8 +98,6 @@ module cache(
     
     assign mem_we     = state == WMEM;
     assign mem_size   = 2'b10;
-    assign mem_addr   = {mem_we ? cur_ctag : now_addr_tag, now_addr_idx, 2'b00};
-    assign mem_data_w = cur_data;
     
     assign cpu_data_r = cur_data;
     
