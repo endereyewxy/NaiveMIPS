@@ -157,7 +157,7 @@ module datapath(
     
     // FIXME
     logic `W_DATA flushed_inst;
-    assign        flushed_inst = if_id_o.pc == 32'h0 ? 32'h0 : ibus_sbus.data_r;
+    assign        flushed_inst = (if_id_o.pc == 32'h0 | if_id_o.ibus_error.adel) ? 32'h0 : ibus_sbus.data_r;
     
     
     id id_(
