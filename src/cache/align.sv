@@ -3,26 +3,97 @@
 import includes::*;
 
 module align(
-    input  logic `W_COFF coff_i,
-    input  logic [1:0]   size_i,
-    input  logic `W_DATA data_i,
-    input  logic `W_DATA data_f,
+    input  logic         clk    ,
+    input  logic         rst    ,
     
-    output logic `W_DATA data_a,
-    output logic `W_DATA data_s);
+    input  logic         stall  ,
+
+    input  logic [1:0]   addr   ,
+    input  logic [1:0]   size   ,
     
-    assign data_a = size_i == 2'b00 ? (coff_i == 2'b00 ? {data_f[31: 8], data_i[ 7:0]              }  :
-                                       coff_i == 2'b01 ? {data_f[31:16], data_i[ 7:0], data_f[ 7:0]}  :
-                                       coff_i == 2'b10 ? {data_f[31:24], data_i[ 7:0], data_f[15:0]}  :
-                                                         {               data_i[ 7:0], data_f[23:0]}) :
-                    size_i == 2'b01 ? (coff_i == 2'b00 ? {data_f[31:16], data_i[15:0]              }  :
-                                                         {               data_i[15:0], data_f[15:0]}) :
-                                                                         data_i                       ;
+    input  logic `W_DATA data_wi,
+    input  logic `W_DATA data_ri,
     
-    assign data_s = coff_i == 2'b00 ?         data_i         :
-                    coff_i == 2'b01 ? { 8'h0, data_i[31: 8]} :
-                    coff_i == 2'b10 ? {16'h0, data_i[31:16]} :
-                                      {24'h0, data_i[31:24]} ;
+    output logic [3:0]   mask_wo,
+    output logic `W_DATA data_wo,
+    output logic `W_DATA data_ro);
+    
+    logic [1:0] addr_ri;
+    logic [1:0] size_ri;
+    
+    always @(posedge clk)
+        if (rst) {addr_ri, size_ri} <= 0; else if (~stall) {addr_ri, size_ri} <= {addr, size};
+    
+    always_comb begin
+        case (size)
+            2'b00:
+                case (addr)
+                    2'b00:
+                        begin
+                            mask_wo = 4'b0001;
+                            data_wo = {24'h0, data_wi[ 7: 0]       };
+                        end
+                    2'b01:
+                        begin
+                            mask_wo = 4'b0010;
+                            data_wo = {16'h0, data_wi[ 7: 0],  8'h0};
+                        end
+                    2'b10:
+                        begin
+                            mask_wo = 4'b0100;
+                            data_wo = { 8'h0, data_wi[ 7: 0], 16'h0};
+                        end
+                    default: // 2'b11:
+                        begin
+                            mask_wo = 4'b1000;
+                            data_wo = {       data_wi[ 7: 0], 24'h0};
+                        end
+                endcase
+            2'b01:
+                case (addr)
+                    2'b00:
+                        begin
+                            mask_wo = 4'b0011;
+                            data_wo = {16'h0, data_wi[15: 0]       };
+                        end
+                    default: // 2'b10:
+                        begin
+                            mask_wo = 4'b1100;
+                            data_wo = {       data_wi[15: 0], 16'h0};
+                        end
+                endcase
+            default: // 2'b10:
+                begin
+                    mask_wo = 4'b1111;
+                    data_wo = data_wi;
+                end
+        endcase
+    end
+    
+    always_comb begin
+        case (size_ri)
+            2'b00:
+                case (addr_ri)
+                    2'b00:
+                        data_ro = {24'h0, data_ri[ 7: 0]       };
+                    2'b01:
+                        data_ro = {24'h0, data_ri[15: 8]       };
+                    2'b10:
+                        data_ro = {24'h0, data_ri[23:16]       };
+                    default: // 2'b11:
+                        data_ro = {24'h0, data_ri[31:24]       };
+                endcase
+            2'b01:
+                case (addr_ri)
+                    2'b00:
+                        data_ro = {16'h0, data_ri[15: 0]       };
+                    default: // 2'b10:
+                        data_ro = {16'h0, data_ri[31:16]       };
+                endcase
+            default: // 2'b10:
+                data_ro = data_ri;
+        endcase
+    end
     
 endmodule
 

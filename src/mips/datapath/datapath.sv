@@ -9,8 +9,6 @@ module datapath(
     input       logic `W_ADDR er_epc     ,  // ID
     sbus.master               ibus_sbus  ,  // IF - ID
     sbus.master               dbus_sbus  ,  // MM - WB
-    output      logic         ibus_update,
-    output      logic         dbus_update,
     input       bus_error     ibus_error ,  // IF
     input       bus_error     dbus_error ,  // MM
     output      reg_error     cp0w_error ,  // MM
@@ -222,7 +220,7 @@ module datapath(
         .except_addr(mm_except_addr     ),
         .source_addr(ex_mm_o.source_addr),
         .source_data(ex_mm_o.source_data),
-        .dbus_en    (dbus_vd            ),
+        .dbus_en    (dbus_sbus.en       ),
         .dbus_we    (dbus_sbus.we       ),
         .dbus_size  (dbus_sbus.size     ),
         .dbus_addr  (dbus_sbus.addr     ),
@@ -251,7 +249,9 @@ module datapath(
         .mm_wb_stall(c_mm_wb_stall  ),
         .mm_wb_flush(c_mm_wb_flush  ),
         .pc_stall   (c_pc_stall     ),
-        .pc_flush   (c_pc_flush     ));
+        .pc_flush   (c_pc_flush     ),
+        .ibus_pause (ibus_sbus.pause),
+        .dbus_pause (dbus_sbus.pause));
     
     forward forward_(
         .oper_id           (id_ex_i.oper        ),
@@ -276,23 +276,10 @@ module datapath(
         .forward_ex_rt     (f_forward_ex_rt     ),
         .forward_ex_rt_data(f_forward_ex_rt_data));
     
-    // 处理剩余总线以及寄存器接口
-    
-    always @(posedge clk) begin
-        ibus_en <= ~   c_pc_stall;
-        dbus_en <= ~c_ex_mm_stall;
-    end
-    
-    assign ibus_sbus.en     = (~rst & ibus_en) | mm_except;
+    assign ibus_sbus.en     = ~rst;
     assign ibus_sbus.we     = 1'b0;
     assign ibus_sbus.addr   = if_id_i.pc;
     assign ibus_sbus.size   = 2'b10;
-    assign ibus_sbus.data_w = 32'h0;
-    
-    assign dbus_sbus.en = ~rst & dbus_vd & dbus_en;
-    
-    assign ibus_update = ~   c_pc_stall;
-    assign dbus_update = ~c_mm_wb_stall;
     
     assign cp0_rt.regf =                              id_ex_o.rt_regf;
     assign cp0_rd.regf = id_ex_o.oper == `OPER_MTC0 ? id_ex_o.rd_regf : 0;
@@ -300,20 +287,9 @@ module datapath(
     assign rs.regf = id_ex_i.rs_regf;
     assign rt.regf = id_ex_i.rt_regf;
     
-    // 处理调试信息：在停顿和刷新时不进行输出
+    assign rd.we = rd.regf != 0 & ~c_mm_wb_stall;
     
-    logic debug_enable;
-    
-    pipeline #(logic) if_id_control_(
-        .clk  (clk ),
-        .rst  (rst ),
-        .stall(1'b0),
-        .flush(1'b0),
-        
-        .data_i(~c_mm_wb_stall & ~c_mm_wb_flush),
-        .data_o(debug_enable                   ));
-    
-    assign debug = {mm_wb_o.pc, {4{rd.regf != 0 & debug_enable}}, rd.regf, rd.data};
+    assign debug = {mm_wb_o.pc, {4{rd.we}}, rd.regf, rd.data};
     
 endmodule
 

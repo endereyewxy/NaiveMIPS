@@ -5,12 +5,10 @@ import includes::*;
 module mips(
     input       logic         clk        ,
     input       logic         rst        ,
-    output      logic         ndc        ,
     input       logic `W_HINT hard_intr  ,
     sbus.master               ibus_sbus  ,
     sbus.master               dbus_sbus  ,
-    output      logic         ibus_update,
-    output      logic         dbus_update,
+    output      logic         no_dcache  ,
     output      debuginfo     debug      );
     
     sbus ibus_mmu(clk);
@@ -40,7 +38,7 @@ module mips(
         .dbus_p   (dbus_sbus     ),
         .ibus_e   (ibus_error    ),
         .dbus_e   (dbus_error    ),
-        .no_dcache(ndc           ));
+        .no_dcache(no_dcache     ));
     
     gpr gpr_(
         .clk(clk     ),
@@ -66,8 +64,6 @@ module mips(
         .er_epc     (er_epc         ),
         .ibus_sbus  (ibus_mmu.master),
         .dbus_sbus  (dbus_mmu.master),
-        .ibus_update(ibus_update    ),
-        .dbus_update(dbus_update    ),
         .ibus_error (ibus_error     ),
         .dbus_error (dbus_error     ),
         .cp0w_error (cp0w           ),

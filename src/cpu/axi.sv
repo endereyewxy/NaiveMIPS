@@ -52,45 +52,20 @@ module mycpu_top(
     sbus ibus(clk);
     sbus dbus(clk);
     
-    logic ibus_update;
-    logic dbus_update;
-    
     debuginfo debug;
     
-    wire ndc;
+    logic no_dcache;
     
     mips mips_(
         .clk        (clk        ),
         .rst        (~resetn    ),
-        .ndc        (ndc        ),
         .hard_intr  (int_       ),
         .ibus_sbus  (ibus.master),
         .dbus_sbus  (dbus.master),
-        .ibus_update(ibus_update),
-        .dbus_update(dbus_update),
+        .no_dcache  (no_dcache  ),
         .debug      (debug      ));
     
-    wire         inst_req    ;
-    wire         inst_wr     ;
-    wire [1:0]   inst_size   ;
-    wire `W_ADDR inst_addr   ;
-    wire `W_DATA inst_wdata  ;
-    wire `W_DATA inst_rdata  ;
-    wire         inst_addr_ok;
-    wire         inst_data_ok;
-    
-    wire         data_req    ;
-    wire         data_wr     ;
-    wire [1:0]   data_size   ;
-    wire `W_ADDR data_addr   ;
-    wire `W_DATA data_wdata  ;
-    wire `W_DATA data_rdata  ;
-    wire         data_addr_ok;
-    wire         data_data_ok;
-    
-    sbus_to_cache bridge_cache(.rst(~resetn), .ibus(ibus.slave), .dbus(dbus.slave), .*);
-    
-    cpu_axi_interface bridge_axi(.*);
+    toaxi bridge(.rst(~resetn), .ibus(ibus.slave), .dbus(dbus.slave), .*);
     
     assign {debug_wb_pc, debug_wb_rf_wen, debug_wb_rf_wnum, debug_wb_rf_wdata} = debug;
     

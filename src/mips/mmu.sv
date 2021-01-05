@@ -49,6 +49,7 @@ module mmu(
     assign ibus_p.addr   = inst_p_addr;
     assign ibus_p.data_w = ibus_v.data_w;
     assign ibus_v.data_r = ibus_p.data_r;
+    assign ibus_p.pause  = ibus_v.pause;
     assign ibus_v.stall  = ibus_p.stall;
     
     assign dbus_p.en     = dbus_v.en & ~dbus_e_en;
@@ -57,6 +58,7 @@ module mmu(
     assign dbus_p.addr   = data_p_addr;
     assign dbus_p.data_w = dbus_v.data_w;
     assign dbus_v.data_r = dbus_p.data_r;
+    assign dbus_p.pause  = dbus_v.pause;
     assign dbus_v.stall  = dbus_p.stall;
     
     assign no_dcache = data_kesg1 ? 1'b1 : 1'b0;

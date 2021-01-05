@@ -15,15 +15,17 @@ module control(
     output logic mm_wb_stall,
     output logic mm_wb_flush,
     output logic pc_stall   ,
-    output logic pc_flush   );
+    output logic pc_flush   ,
+    output logic ibus_pause ,
+    output logic dbus_pause );
     
     logic id_ex;
     logic ex_mm;
     logic mm_wb;
     
-    assign {id_ex, ex_mm, mm_wb} = (ibus | dbus) ? 3'b001 :
+    assign {id_ex, ex_mm, mm_wb} = dbus ? 3'b001 :
                                          mulalu  ? 3'b010 :
-                                         forward ? 3'b100 : 3'b000;
+                     (ibus | forward)  ? 3'b100 : 3'b000;
     
     assign if_id_stall = mm_wb | ex_mm | id_ex;
     assign id_ex_stall = mm_wb | ex_mm        ;
@@ -37,6 +39,9 @@ module control(
     
     assign pc_stall = if_id_stall;
     assign pc_flush = 1'b0;
+    
+    assign ibus_pause = dbus | mulalu | forward;
+    assign dbus_pause = 1'b0;
     
 endmodule
 

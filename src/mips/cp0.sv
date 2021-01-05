@@ -46,12 +46,17 @@ module cp0(
     
     assign er_epc    = cp0w.we ? cp0w.epc : through14;
     
-    assign rt.data =
-            (cp0w.we & rt.regf ==  8          ) ? cp0w.bva                                                 :
-            (cp0w.we & rt.regf == 14          ) ? cp0w.epc                                                 :
-            (cp0w.we & rt.regf == 12          ) ? {regfile[12][31:2], cp0w.exl, regfile[12][0]}            :
-            (cp0w.we & rt.regf == 13          ) ? {cp0w.bd, regfile[13][30:7], cp0w.exc, regfile[13][1:0]} :
-            (rt.regf == rd.regf & rd.we       ) ? rd.data                                                  : regfile[rt.regf];
+    always @(*) begin
+        rt.data = (rd.we & rt.regf == rd.regf) ? rd.data : regfile[rt.regf];
+        if (cp0w.we) begin
+            case (rt.regf)
+                8 : rt.data = cp0w.bva;
+                14: rt.data = cp0w.epc;
+                12: rt.data = {regfile[12][31:2], cp0w.exl, regfile[12][0]};
+                13: rt.data = {cp0w.bd, regfile[13][30:7], cp0w.exc, regfile[13][1:0]};
+            endcase
+        end
+    end
     
 endmodule
 

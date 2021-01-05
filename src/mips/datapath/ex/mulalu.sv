@@ -46,6 +46,11 @@ module mulalu(
     
     assign alu_stall = ~ready & (is_mul | is_div);
     
+    always @(negedge clk) begin
+        if (hi_write) hi <= hi_write_data;
+        if (lo_write) lo <= lo_write_data;
+    end
+    
     always @(posedge clk) begin
         if (rst) begin
             state <= NORM ;
@@ -136,9 +141,6 @@ module mulalu(
                 default:;
             endcase
             
-        end else begin
-            if (hi_write) hi <= hi_write_data;
-            if (lo_write) lo <= lo_write_data;
         end
     end
     

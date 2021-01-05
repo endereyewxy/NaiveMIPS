@@ -57,7 +57,7 @@ module ex(
         .oper         (oper       ),
         .func         (func       ),
         .cp0_rt_data  (cp0_rt_data),
-        .cp0_rd_we    (cp0_we     ),
+        .cp0_rd_we    (cp0_rd_we  ),
         .cp0_rd_data  (cp0_rd_data),
         .source_a     (source_a   ),
         .source_b     (source_b   ),

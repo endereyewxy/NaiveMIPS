@@ -22,121 +22,9 @@ module decode(
     assign f_oper = inst[31:26];
     assign f_func = inst[5 :0 ];
     
-    logic n_ri;
-    
-    assign {n_ri, oper, func} =
-        (f_oper == 6'b000000) ? (
-            (f_func == 6'b100100) ? {1'b1, `OPER_ALUS, `FUNC_AND } : // and
-            (f_func == 6'b100101) ? {1'b1, `OPER_ALUS, `FUNC_OR  } : // or
-            (f_func == 6'b100110) ? {1'b1, `OPER_ALUS, `FUNC_XOR } : // xor
-            (f_func == 6'b100111) ? {1'b1, `OPER_ALUS, `FUNC_NOR } : // nor
-            
-            (f_func == 6'b000000) ? {1'b1, `OPER_ALUS, `FUNC_SLL } : // sll
-            (f_func == 6'b000010) ? {1'b1, `OPER_ALUS, `FUNC_SRL } : // srl
-            (f_func == 6'b000011) ? {1'b1, `OPER_ALUS, `FUNC_SRA } : // sra
-            (f_func == 6'b000100) ? {1'b1, `OPER_ALUS, `FUNC_SLL } : // sllv
-            (f_func == 6'b000110) ? {1'b1, `OPER_ALUS, `FUNC_SRL } : // srlv
-            (f_func == 6'b000111) ? {1'b1, `OPER_ALUS, `FUNC_SRA } : // srav
-            
-            (f_func == 6'b010000) ? {1'b1, `OPER_MFHI, `FUNC_AND } : // mfhi
-            (f_func == 6'b010010) ? {1'b1, `OPER_MFLO, `FUNC_AND } : // mflo
-            (f_func == 6'b010001) ? {1'b1, `OPER_MTHI, `FUNC_AND } : // mthi
-            (f_func == 6'b010011) ? {1'b1, `OPER_MTLO, `FUNC_AND } : // mtlo
-            
-            (f_func == 6'b100000) ? {1'b1, `OPER_ALUS, `FUNC_ADD } : // add
-            (f_func == 6'b100010) ? {1'b1, `OPER_ALUS, `FUNC_SUB } : // sub
-            (f_func == 6'b101010) ? {1'b1, `OPER_ALUS, `FUNC_SLT } : // slt
-            (f_func == 6'b011000) ? {1'b1, `OPER_ALUS, `FUNC_MUL } : // mult
-            (f_func == 6'b011010) ? {1'b1, `OPER_ALUS, `FUNC_DIV } : // div
-            
-            (f_func == 6'b100001) ? {1'b1, `OPER_ALUU, `FUNC_ADD } : // addu
-            (f_func == 6'b100011) ? {1'b1, `OPER_ALUU, `FUNC_SUB } : // subu
-            (f_func == 6'b101011) ? {1'b1, `OPER_ALUU, `FUNC_SLT } : // sltu
-            (f_func == 6'b011001) ? {1'b1, `OPER_ALUU, `FUNC_MUL } : // multu
-            (f_func == 6'b011011) ? {1'b1, `OPER_ALUU, `FUNC_DIV } : // divu
-            
-            (f_func == 6'b001000) ? {1'b1, `OPER_JR  , `FUNC_AND } : // jr
-            (f_func == 6'b001001) ? {1'b1, `OPER_JR  , `FUNC_AND } : // jral
-            
-            (f_func == 6'b001101) ? {1'b1, `OPER_BREAK  , `FUNC_AND } : // break
-            (f_func == 6'b001100) ? {1'b1, `OPER_SYSCALL, `FUNC_AND } : // syscall
-            0) :
-        
-        (f_oper == 6'b001100) ? {1'b1, `OPER_ALUU, `FUNC_AND } : // andi
-        (f_oper == 6'b001110) ? {1'b1, `OPER_ALUU, `FUNC_XOR } : // xori
-        (f_oper == 6'b001111) ? {1'b1, `OPER_ALUU, `FUNC_LUI } : // lui
-        (f_oper == 6'b001101) ? {1'b1, `OPER_ALUU, `FUNC_OR  } : // ori
-        
-        (f_oper == 6'b001000) ? {1'b1, `OPER_ALUS, `FUNC_ADD } : // addi
-        (f_oper == 6'b001001) ? {1'b1, `OPER_ALUU, `FUNC_ADD } : // addiu
-        (f_oper == 6'b001010) ? {1'b1, `OPER_ALUS, `FUNC_SLT } : // slti
-        (f_oper == 6'b001011) ? {1'b1, `OPER_ALUU, `FUNC_SLT } : // sltiu
-        
-        (f_oper == 6'b000010) ? {1'b1, `OPER_J   , `FUNC_AND } : // j
-        (f_oper == 6'b000011) ? {1'b1, `OPER_J   , `FUNC_AND } : // jal
-        (f_oper == 6'b000100) ? {1'b1, `OPER_BEQ , `FUNC_AND } : // beq
-        (f_oper == 6'b000111) ? {1'b1, `OPER_BGTZ, `FUNC_AND } : // bgtz
-        (f_oper == 6'b000110) ? {1'b1, `OPER_BLEZ, `FUNC_AND } : // blez
-        (f_oper == 6'b000101) ? {1'b1, `OPER_BNE , `FUNC_AND } : // bne
-        (f_oper == 6'b000001) ? (
-            (inst[20:16] == 5'b00000) ? {1'b1, `OPER_BLTZ, `FUNC_AND } : // bltz 
-            (inst[20:16] == 5'b10000) ? {1'b1, `OPER_BLTZ, `FUNC_AND } : // bltzal
-            (inst[20:16] == 5'b00001) ? {1'b1, `OPER_BGEZ, `FUNC_AND } : // bgez
-            (inst[20:16] == 5'b10001) ? {1'b1, `OPER_BGEZ, `FUNC_AND } : // bgezal
-            0) :
-        
-        (f_oper == 6'b100000) ? {1'b1, `OPER_LB  , `FUNC_ADD } : // lb
-        (f_oper == 6'b100100) ? {1'b1, `OPER_LBU , `FUNC_ADD } : // lbu
-        (f_oper == 6'b100001) ? {1'b1, `OPER_LH  , `FUNC_ADD } : // lh
-        (f_oper == 6'b100101) ? {1'b1, `OPER_LHU , `FUNC_ADD } : // lhu
-        (f_oper == 6'b100011) ? {1'b1, `OPER_LW  , `FUNC_ADD } : // lw
-        (f_oper == 6'b101000) ? {1'b1, `OPER_SB  , `FUNC_ADD } : // sb
-        (f_oper == 6'b101001) ? {1'b1, `OPER_SH  , `FUNC_ADD } : // sh
-        (f_oper == 6'b101011) ? {1'b1, `OPER_SW  , `FUNC_ADD } : // sw
-        
-        (f_oper == 6'b010000) ? (
-            (inst[25:21] == 5'b00100) ? {1'b1, `OPER_MTC0, `FUNC_AND} : // mtc0
-            (inst[25:21] == 5'b00000) ? {1'b1, `OPER_MFC0, `FUNC_AND} : // mfc0
-            (inst[25:21] == 5'b10000) ? {1'b1, `OPER_ERET, `FUNC_AND} : // eret
-            0) : 0;
-    
-    assign ityp =
-        (inst[31] | inst[29] | inst[28] | f_oper == 6'b000001) ? `TYPE_I :
-        ((func == `FUNC_SLL     |
-          func == `FUNC_SRL     |
-          func == `FUNC_SRA     ) & ~inst[2])                  ? `TYPE_I :
-         (oper == `OPER_J       |
-          oper == `OPER_BREAK   |
-          oper == `OPER_SYSCALL |
-          oper == `OPER_ERET    )                              ? `TYPE_J : `TYPE_R;
-    
-    assign imme =
-        (ityp == `TYPE_I) ? (
-            (func == `FUNC_SLL |
-             func == `FUNC_SRL |
-             func == `FUNC_SRA )     ? {27'h0         , inst[10:6]} :    // 特殊处理
-            (f_oper[5:2] == 4'b0011) ? {16'h0         , inst[15:0]} :    // 无符号扩展
-                                       {{16{inst[15]}}, inst[15:0]}):    // 有符号扩展
-        (ityp == `TYPE_J)            ? {6'h0          , inst[25:0]} : 0; // 皆可
-    
     logic `W_REGF rd_reg_;
     
-    // MTC0和MFC0需要特殊处理：它们的没有第一个源寄存器
-    assign rs_regf = (ityp   == `TYPE_J    |
-                      oper   == `OPER_MTC0 |
-                      oper   == `OPER_MFC0 ) ? 0 : inst[25:21];
     // 注意含义：rt表示第二个源寄存器，手册中I型指令的rt实际上是目标寄存器（rd）
-    assign rt_regf = (oper   == `OPER_BEQ |
-                      oper   == `OPER_BNE |
-                      oper   == `OPER_SB  |
-                      oper   == `OPER_SH  |
-                      oper   == `OPER_SW  |
-                      func   == `FUNC_SLL |
-                      func   == `FUNC_SRL |
-                      func   == `FUNC_SRA ) ?     inst[20:16] :
-                     (oper   == `OPER_MFC0) ?     inst[15:11] :
-                     (ityp   == `TYPE_J   |
-                      ityp   == `TYPE_I   ) ? 0 : inst[20:16];
     assign rd_reg_ =  `IS_OPER_JB(oper)     ? 0               :
                      (oper   == `OPER_SB  |
                       oper   == `OPER_SH  |
@@ -156,9 +44,117 @@ module decode(
     
     assign rd_regf = jar ? (inst[15:11] == 5'h0 ? 5'd31 : inst[15:11]) : (jal | bal) ? 5'd31 : rd_reg_;
     
+    always @(*) begin
+        ityp    = (inst[31] | inst[29] | inst[28]) ? `TYPE_I : `TYPE_R;
+        oper    = 0;
+        func    = 0;
+        rs_regf = inst[25:21];
+        rt_regf = (ityp == `TYPE_I | ityp == `TYPE_J) ? 0 : inst[20:16];
+        ri      = 1'b0;
+        
+        case (f_oper)
+            6'b000000:
+                begin
+                    case (f_func)
+                        6'b010000: oper = `OPER_MFHI   ; // mfhi
+                        6'b010010: oper = `OPER_MFLO   ; // mflo
+                        6'b010001: oper = `OPER_MTHI   ; // mthi
+                        6'b010011: oper = `OPER_MTLO   ; // mtlo
+                        6'b001000: oper = `OPER_JR     ; // jr
+                        6'b001001: oper = `OPER_JR     ; // jral
+                        
+                        6'b001101: begin ityp = `TYPE_J; oper = `OPER_BREAK  ; rs_regf = 5'h0; end // break
+                        6'b001100: begin ityp = `TYPE_J; oper = `OPER_SYSCALL; rs_regf = 5'h0; end // syscall
+                        
+                        default  : oper = f_func[0] ? `OPER_ALUU : `OPER_ALUS;
+                    endcase
+                    
+                    case (f_func)
+                        6'b100100: func = `FUNC_AND ; // and
+                        6'b100101: func = `FUNC_OR  ; // or
+                        6'b100110: func = `FUNC_XOR ; // xor
+                        6'b100111: func = `FUNC_NOR ; // nor
+                        6'b000100: func = `FUNC_SLL ; // sllv
+                        6'b000110: func = `FUNC_SRL ; // srlv
+                        6'b000111: func = `FUNC_SRA ; // srav
+                        6'b100000: func = `FUNC_ADD ; // add
+                        6'b100010: func = `FUNC_SUB ; // sub
+                        6'b101010: func = `FUNC_SLT ; // slt
+                        6'b011000: func = `FUNC_MUL ; // mult
+                        6'b011010: func = `FUNC_DIV ; // div
+                        6'b100001: func = `FUNC_ADD ; // addu
+                        6'b100011: func = `FUNC_SUB ; // subu
+                        6'b101011: func = `FUNC_SLT ; // sltu
+                        6'b011001: func = `FUNC_MUL ; // multu
+                        6'b011011: func = `FUNC_DIV ; // divu
+                        
+                        6'b000000: begin ityp = `TYPE_I; func = `FUNC_SLL; rt_regf = inst[20:16]; end // sll
+                        6'b000010: begin ityp = `TYPE_I; func = `FUNC_SRL; rt_regf = inst[20:16]; end // srl
+                        6'b000011: begin ityp = `TYPE_I; func = `FUNC_SRA; rt_regf = inst[20:16]; end // sra
+                    endcase
+                end
+            
+            6'b000001: // bltz(al), bgez(al)
+                begin
+                    ityp = `TYPE_I;
+                    oper = inst[16] ? `OPER_BGEZ : `OPER_BLTZ;
+                end
+            
+            6'b010000:
+                begin
+                    case (inst[25:23])
+                        3'b001: begin oper = `OPER_MTC0; rs_regf = 5'h0;                        end // mtc0
+                        3'b000: begin oper = `OPER_MFC0; rs_regf = 5'h0; rt_regf = inst[15:11]; end // mfc0
+                        
+                        3'b100: begin ityp = `TYPE_J; oper = `OPER_ERET; rs_regf = 5'h0; end // eret
+                        
+                        default: ri = 1'b1;
+                    endcase
+                end
+            
+            6'b001100: begin oper = `OPER_ALUU; func = `FUNC_AND; end // andi
+            6'b001110: begin oper = `OPER_ALUU; func = `FUNC_XOR; end // xori
+            6'b001111: begin oper = `OPER_ALUU; func = `FUNC_LUI; end // lui
+            6'b001101: begin oper = `OPER_ALUU; func = `FUNC_OR ; end // ori
+            6'b001000: begin oper = `OPER_ALUS; func = `FUNC_ADD; end // addi
+            6'b001001: begin oper = `OPER_ALUU; func = `FUNC_ADD; end // addiu
+            6'b001010: begin oper = `OPER_ALUS; func = `FUNC_SLT; end // slti
+            6'b001011: begin oper = `OPER_ALUU; func = `FUNC_SLT; end // sltiu
+            
+            6'b000010: begin ityp = `TYPE_J; oper = `OPER_J; rs_regf = 5'h0; end // j
+            6'b000011: begin ityp = `TYPE_J; oper = `OPER_J; rs_regf = 5'h0; end // jal
+            
+            6'b000100: begin oper = `OPER_BEQ; rt_regf = inst[20:16]; end // beq
+            6'b000101: begin oper = `OPER_BNE; rt_regf = inst[20:16]; end // bne
+            
+            6'b000111: oper = `OPER_BGTZ; // bgtz
+            6'b000110: oper = `OPER_BLEZ; // blez
+            
+            6'b100000: begin oper = `OPER_LB ; func = `FUNC_ADD; end // lb
+            6'b100100: begin oper = `OPER_LBU; func = `FUNC_ADD; end // lbu
+            6'b100001: begin oper = `OPER_LH ; func = `FUNC_ADD; end // lh
+            6'b100101: begin oper = `OPER_LHU; func = `FUNC_ADD; end // lhu
+            6'b100011: begin oper = `OPER_LW ; func = `FUNC_ADD; end // lw
+            
+            6'b101000: begin oper = `OPER_SB ; func = `FUNC_ADD; rt_regf = inst[20:16]; end // sb
+            6'b101001: begin oper = `OPER_SH ; func = `FUNC_ADD; rt_regf = inst[20:16]; end // sh
+            6'b101011: begin oper = `OPER_SW ; func = `FUNC_ADD; rt_regf = inst[20:16]; end // sw
+            
+            default: ri = 1'b1;
+        endcase
+    end
+    
+    assign imme =
+        (ityp == `TYPE_I) ? (
+            (func == `FUNC_SLL |
+             func == `FUNC_SRL |
+             func == `FUNC_SRA )     ? {27'h0         , inst[10:6]} :    // 特殊处理
+            (f_oper[5:2] == 4'b0011) ? {16'h0         , inst[15:0]} :    // 无符号扩展
+                                       {{16{inst[15]}}, inst[15:0]}):    // 有符号扩展
+        (ityp == `TYPE_J)            ? {6'h0          , inst[25:0]} : 0; // 皆可
+    
     assign sy = oper == `OPER_SYSCALL;
     assign bp = oper == `OPER_BREAK;
-    assign ri = ~n_ri;
     assign er = oper == `OPER_ERET;
     
 endmodule

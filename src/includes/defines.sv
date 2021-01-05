@@ -14,9 +14,8 @@ package includes;
 `define W_CTAG [19:0]
 `define W_CIDX [ 9:0]
 `define W_COFF [ 1:0]
-`define W_META [21:0]
 
-`define CACHE_DEPTH 1024
+`define W_CDEP [1023:0]
 
 `define TYPE_R 2'b00
 `define TYPE_I 2'b01
@@ -83,7 +82,7 @@ typedef struct packed {
     logic         adel;
     logic         ades;
     logic `W_ADDR addr;
-} bus_error; // 总线错误
+} bus_error; 
 
 typedef struct packed {
     logic `W_INTV intr_vect;
@@ -93,7 +92,7 @@ typedef struct packed {
     logic         ov       ;
     logic         er       ;
     logic `W_ADDR er_epc   ;
-} exe_error; // 流水线中产生的（包括计算屏蔽之后的中断向量）
+} exe_error;
 
 typedef struct packed {
     logic         we ;
@@ -102,7 +101,7 @@ typedef struct packed {
     logic `W_EXCC exc;
     logic `W_ADDR epc;
     logic `W_ADDR bva;
-} reg_error; // 错误处理向CP0寄存器输出的信息
+} reg_error;
 
 typedef struct packed {
     logic `W_DATA debug_wb_pc      ;
@@ -162,6 +161,7 @@ interface sbus(input logic clk);
     logic `W_ADDR addr  ;
     logic `W_DATA data_w;
     logic `W_DATA data_r;
+    logic         pause ;
     logic         stall ;
     
     clocking cb @(posedge clk);
@@ -181,6 +181,7 @@ interface sbus(input logic clk);
         output addr  ,
         output data_w,
         input  data_r,
+        output pause ,
         input  stall );
     
     modport slave(
@@ -190,6 +191,7 @@ interface sbus(input logic clk);
         input  addr  ,
         input  data_w,
         output data_r,
+        input  pause ,
         output stall );
     
 endinterface

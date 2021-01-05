@@ -11,15 +11,14 @@ module gpr(
     
     reg `W_DATA [31:0] regfile;
     
-    always @(posedge clk) begin
-        if(rst) begin
+    always @(negedge clk) begin
+        if (rst)
             regfile <= 0;
-        end else if (rd.regf != 0) begin
+        else if (rd.we)
             regfile[rd.regf] <= rd.data;
-        end
     end
     
-    assign rs.data = (rs.regf == rd.regf & rd.regf != 0) ? rd.data : regfile[rs.regf];
-    assign rt.data = (rt.regf == rd.regf & rd.regf != 0) ? rd.data : regfile[rt.regf];
+    assign rs.data = regfile[rs.regf];
+    assign rt.data = regfile[rt.regf];
     
 endmodule
