@@ -46,17 +46,16 @@ module mulalu(
     
     assign alu_stall = ~ready & (is_mul | is_div);
     
-    always @(negedge clk) begin
-        if (hi_write) hi <= hi_write_data;
-        if (lo_write) lo <= lo_write_data;
-    end
-    
     always @(posedge clk) begin
         if (rst) begin
             state <= NORM ;
             hi    <= 32'h0;
             lo    <= 32'h0;
             ready <= 1'b0 ;
+        end else if (hi_write) begin
+             hi <= hi_write_data;
+        end else if (lo_write) begin
+            lo <= lo_write_data;
         end else if (reg_flush) begin
             state <= NORM;
             ready <= 1'b0;
