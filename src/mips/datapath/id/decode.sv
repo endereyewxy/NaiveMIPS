@@ -140,6 +140,8 @@ module decode(
             6'b101001: begin oper = `OPER_SH ; func = `FUNC_ADD; rt_regf = inst[20:16]; end // sh
             6'b101011: begin oper = `OPER_SW ; func = `FUNC_ADD; rt_regf = inst[20:16]; end // sw
             
+            6'b111111: begin oper = `OPER_ALUS; func = `FUNC_ABS; ityp = `TYPE_R; rt_regf = 0; rd_regf = inst[15:11]; end
+            
             default: ri = 1'b1;
         endcase
     end

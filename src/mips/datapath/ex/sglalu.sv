@@ -64,6 +64,8 @@ module sglalu(
                     
                     `FUNC_SLT: result = mulalu_sign ? slt_result : {31'h0, source_a < source_b};
                     
+                    `FUNC_ABS: result = source_a[31] ? (0 - source_a) : source_a;
+                    
                     default: result = 32'h0;
                 endcase
         endcase

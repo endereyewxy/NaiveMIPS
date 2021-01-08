@@ -69,6 +69,7 @@ package includes;
 `define FUNC_SLT 4'b1101
 `define FUNC_MUL 4'b1110
 `define FUNC_DIV 4'b1111
+`define FUNC_ABS 4'b1000
 
 `define EXCC_INT  5'h0
 `define EXCC_ADEL 5'h4
